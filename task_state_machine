@@ -1,0 +1,396 @@
+/****************************************************************************
+*                                                  São José dos Campos - SP *
+*                                                                           *
+* Mateus Pinto Paes                                                         *
+* ============================================                              *
+*                                                                           *
+* Programa: HOME-IR                                                         *
+* Projeto: HOME-IR                                                          *
+* VersãoGit: N/A                                                             *
+*                                                                           *
+****************************************************************************/
+/*********************************************************************
+* Includes de Arquivos
+*********************************************************************/
+#include <Adafruit_CC3000.h>
+#include <Adafruit_CC3000_Server.h>
+#include <Adafruit_GFX.h>    // Core graphics library
+#include <Adafruit_ST7735.h> // Hardware-specific library
+#include <Keypad.h>
+#include <Password.h>
+#include <ccspi.h>
+#include <SD.h>
+//#include <IRremote.h>
+#include <SPI.h>
+#include "utility/debug.h"
+#include "utility/socket.h"
+#include <avr/wdt.h>
+//#include <CC3000_MDNS.h> //incluir biblioteca
+/********************************************************************************
+ *  Constantes
+ *******************************************************************************/
+/*** Define Porta de Comunição no IP, Por Padrão utiliza-se a 80 ***/
+#define LISTEN_PORT           80       
+
+/*******************************************************************************
+ *  BAUDRATE Comunicação Serial
+ ******************************************************************************/
+ #define BD_SR115200    115200
+
+/*******************************************************************************
+ *  Base de tempos pa WATCHDOG
+ ******************************************************************************/
+#define   wdt8s       WDTO_8S
+
+/*******************************************************************************
+ *  Base de tempos
+ ******************************************************************************/
+#define t_100ms      100             
+/*****************************************************************************
+ *  Definicoes IO Digital
+ *****************************************************************************/
+#define Serial_RX0              0
+#define Serial_TX0              1
+#define ADAFRUIT_CC3000_IRQ     2  
+#define ADAFRUIT_CC3000_VBAT    7  
+#define TFT_RST                 8
+#define TFT_DC                  9     //Pino Utilizando  DATA/Command Select - Display Touch T
+#define ADAFRUIT_CC3000_CS      10    //Chip Select AdaFruit CC3000 WIFI
+#define TFT_CS                  11    //Chip Select AdaFruit LCD TFT 1.8"
+#define LCD_SD_CS               12    //Chip Select AdaFruit LCD Cartão SD
+#define LED_ARDUINO             13    //Pino do Led Arduino
+#define kLinha_22               22
+#define kLinha_23               23
+#define kLinha_24               24
+#define kLinha_25               25 
+#define kColuna_26              26
+#define kColuna_27              27
+#define kColuna_28              28
+#define SPI_MISO                50 
+#define SPI_MOSI                51 
+//#define SPI_SCK                 52 
+#define SPI_SCK                 53 
+/*** SPI PINAGEM  ***/
+// SPI MEGA,SCK = 52, MISO = 50 e MOSI 51
+// SPI UNO, SCK = 13, MISO = 12 e MOSI = 11
+
+/*****************************************************************************
+ *  Definicoes IO Analógicas
+ *****************************************************************************/
+
+/*****************************************************************************
+ *  Conexão WIRELES
+ *****************************************************************************/
+//#define WLAN_SSID       "iPhone de Mateus"   // Nome da rede nao exceder 32 carecteres
+//#define WLAN_PASS       "mpintopaes"         //Senha
+//#define WLAN_SECURITY   WLAN_SEC_WPA2        // Seguranca da rede WLAN_SEC_UNSEC, 
+                                             //WLAN_SEC_WEP, WLAN_SEC_WPA or 
+                                             //WLAN_SEC_WPA2
+//#define WLAN_SSID       "JoNet"   // Nome da rede nao exceder 32 carecteres
+//#define WLAN_PASS       "mateusjoaopedro"         //Senha
+
+
+/*****************************************************************************
+ *  Máquina de Estado
+ *****************************************************************************/
+typedef enum
+{
+    kBuscaWireless = 0,
+    kSelWireless,
+    kConectandoWireless,
+    kConexaoWirelessOk,
+    kLeituraDoIR,
+    kOperacional
+}MaquinaEstado_t;
+
+/*****************************************************************************
+ *  Variáveis GLOBAIS
+ *****************************************************************************/
+/*** Instancia AdafruitCC3000Server na var echoServer na Porta 80 ***/
+Adafruit_CC3000_Server echoServer(LISTEN_PORT);
+
+/*** Instancia AdafruitCC3000 com os Pinos de CS, IRQ e CLK ***/
+Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT,
+                                         SPI_CLOCK_DIVIDER); 
+
+/*** Instancia AdafruitST7735 Display TFT ***/
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, SPI_MOSI, SPI_SCK, TFT_RST);
+
+/*** Instancia String na var readString***/
+String readString;
+
+/*** Instancia Status do Wifi ***/
+status_t wifistatus = STATUS_DISCONNECTED;
+
+/*** Instancia maquinaestado na var state inicializando no modo BUSCA ***/
+MaquinaEstado_t state = kBuscaWireless;
+
+/*** Retorno da inicializacao do CC3000 ***/
+boolean ret_initcc3000_begin = false;
+
+/*** Instancia o Password Wifi ***/
+Password password = Password ("1234");
+/*** Elementos com Nome e Seguranca das Redes Wireless ***/
+char WLAN_SSID[] = ""; 
+char WLAN_PASS[] = "";
+uint8_t WLAN_SECURITY;
+char ssid_matrix[33];
+char sec_matrix[33];
+uint8_t i_matrix_qte_wifi;
+
+/*** Variaveis IP Mascara DHCP Servidor e DNS ***/
+uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv; 
+
+/*** Variavel do teclado com matrix linha Coluna ***/
+const byte kLinha = 4; 
+const byte kColuna = 3;
+char keys[kLinha][kColuna] = {
+        {'1','2','3',},
+        {'4','5','6',},
+        {'7','8','9',},
+        {'*','0','#',},
+};
+byte linhaPins[kLinha]  = {25, 24, 23, 22}; //Pinos que referencia as Linas do Teclado
+byte colunaPins[kColuna]= {28, 27, 26};     //Pinos que referencia as Colunas do Teclado
+
+/*** Instancia kpd como variavel para Acessar os eventos do Teclado ***/
+Keypad kpd = Keypad( makeKeymap(keys), linhaPins, colunaPins, kLinha, kColuna );
+unsigned long loopcount_key = 0;
+unsigned long timer_t_key = 0;
+char keypass;
+char fim_da_senha = '#';
+char reset_da_senha = '*';
+
+char senha[33]; //concatenacao das senhas
+
+
+/*****************************************************************************
+ *  Variáveis GLOBAIS  FLAGS de CONTROLE
+ *****************************************************************************/
+/*** Flag de verificação da Funcao InfraRED ***/
+boolean flag_habilita_recp_infra_vermelho = false;
+
+/*** tft delay ***/
+uint16_t time; 
+/*****************************************************************************
+ *  Protótipo de Funções
+ *****************************************************************************/
+void setup(void);                           //Função de Inicialização do HW
+void loop(void);                            //Loop Inifinito executado após inicialização de HW
+void modo_manutencao_IRS1(void);            //Função para Tratamento da ISR e Debounce
+bool userver_cc3000begin(void);             //Funcao de inicializacao do Shield CC3000
+bool userver_scanwireless(void);            //Funcao De Scanear Redes Wireless
+bool userver_accespoint(void);              //Chama Funcao para Conectar ao AccesPoint 
+bool userver_checkdhcp(void);               //Chama Funcao para checar DHCP
+bool userver_getip_dinamico(void);          //Chama Funcao para Atribuir IP Dinâmico 
+/****************************************************************************/
+/****************************************************************************/
+/*                                                                          */
+/*                        FUNÇÕES LOCAIS                                    */
+/*                                                                          */
+/****************************************************************************/
+/****************************************************************************/
+/**
+ * @ingroup Home_IR
+ * @brief Inicialização dos Hardwares, Inicialização dos Pino I/O
+ *                                     Inicialização da Comunicação Serial USART
+ *                                     Inicialização Interrupções
+ *                                     Inicialização dos Timers
+ *                                     Inicialização da Maquina de Estado
+ *                                     
+ * @param   N/A
+ * @return  N/A
+ * 
+ * @note Verificado por:
+ * @note Validado por:
+ *
+ * @author  Mateus Pinto Paes
+ * @date  10/fev/2015
+ *  
+ */
+
+/*********************************************************************
+* setup
+*********************************************************************/
+void setup(void) 
+{
+    /*** Limpa Comunicacao Serial ***/
+    Serial.flush();       
+
+    /*** Inicia comunicao Serial com parametro BAUDRATE ***/
+    Serial.begin(BD_SR115200); 
+    
+    /*** Inicialização do Display tft com cor Black Tab ***/
+    tft.initR(INITR_BLACKTAB);   
+    tft.setTextWrap(false); // Allow text to run off right edge
+    tft.fillScreen(ST7735_BLACK);
+    tft.println("Ligando...HW");
+    /*** Inicializa HW do CC3000 ***/
+    while(!userver_cc3000begin())
+    {
+        tft.println("Falha no HW do CC3000");
+    }
+    tft.println("CC3000 Inicializou");
+    tft.println("HW Esta Pronto");
+    delay(2000);
+}
+
+/***
+ * @ingroup Home_IR
+ * @brief Loop Infinito. Onde as funções são executadas infinitamente de acordo com,
+ *                       Com isntruções definidas pelo programador.
+ *                                     
+ *                                     
+ * @param   N/A
+ * @return  N/A
+ * 
+ * @note Verificado por:
+ * @note Validado por:
+ *
+ * @author  Mateus Pinto Paes
+ * @date  10/fev/2015
+ *  
+ ***/
+
+/*********************************************************************
+* loop
+*********************************************************************/
+void loop(void) 
+{
+    uint8_t uitest_seleciona_wifi;
+    tft.fillScreen(ST7735_BLACK);
+    tft.setCursor(0, 30);
+    /*** Verifica Status da placa ***/
+    switch(state)
+    {
+        /*
+        *** Busca Redes Wireless  ***
+        */
+        case kBuscaWireless:
+            tft.println("Buscando Redes Wireless");
+            /*** Executa Scan da Redes se for true, exibe as redes e muda de Estado kSel ***/
+            if(userver_scanwireless() == true)
+            {
+                state = kSelWireless;
+            }
+            /*** Se Não For encotradas Redes  Estado continua kBusca ***/
+            else
+            {
+                state = kBuscaWireless;
+                tft.println("Redes Nao Disponiveis");
+            }
+        break;
+
+        /*
+        *** Seleciona a Rede SSID desejada ***
+        */
+        case kSelWireless: 
+            /*** Enquanto tecla de selecao nao for pressionada  ***/
+            while(uitest_seleciona_wifi > 100)
+            {
+                /*** Se alguma tecla for pressionada comando proximo estado e salva senha ***/
+                if(selec_rede_wifi_teclado() == true)
+                {
+                    /*** Atribui Senha do teclado a String da WLAN PASS ***/
+                    WLAN_PASS = selec_senha_wifi_teclado();
+                    state = kConectandoWireless;
+                }
+                uitest_seleciona_wifi++;
+                if (uitest_seleciona_wifi == 99)
+                {
+                    state = kBuscaWireless;
+                    tft.println("Tecla Não Encontrada");   
+                }
+            }
+        break;
+
+        /*
+        *** Inicia Conexão com a Rede Selecionada, ConectAP e CheckDHCP ***
+        */
+        case kConectandoWireless:
+            /*** Chama Funcao para Conectar ao AccesPoint ***/
+            if(userver_accespoint() == true)
+            {
+                tft.println("AP OK");
+
+                /*** Chama Funcao para checar DHCP ***/
+                if(userver_checkdhcp() == true)
+                {
+                    tft.println("DHCP OK");
+
+                    /*** Chama Funcao para Atribuir IP Dinâmico ***/
+                    if(userver_getip_dinamico() == true)
+                    {
+                        tft.println("IP Dinamico OK");
+                        //wdt_enable(WDTO_8S);
+                    }
+                    else
+                    {
+                        tft.println("IP Dinamico NOK");
+                        state = kBuscaWireless;
+                    }
+                }
+                else
+                {
+                    Serial.print(F("\nErro Conexao DHCP")); 
+                    state = kBuscaWireless;
+                }
+            }
+            else
+            {
+                tft.println("AP NOK");
+                state = kBuscaWireless;
+            }
+        break;
+
+        /*
+        *** Verifica se Status e Conectado se Sim envia para Operacional ***
+        */
+        case kConexaoWirelessOk:
+            /*** Verifica Se CC3000 Esta conectado a Rede Wireless, se Não ***/
+            wifistatus = cc3000.getStatus();
+            if(wifistatus == STATUS_CONNECTED)
+            {
+                tft.initR(INITR_BLACKTAB);   
+                tft.setTextWrap(false); // Allow text to run off right edge
+                tft.fillScreen(ST7735_BLACK);
+                state = kOperacional;
+                tft.println("Conecao OK");
+            }
+            if(wifistatus == STATUS_DISCONNECTED)
+            {
+                state = kBuscaWireless;
+                tft.initR(INITR_BLACKTAB);   
+                tft.setTextWrap(false); // Allow text to run off right edge
+                tft.fillScreen(ST7735_BLACK);
+                state = kOperacional;
+                tft.println("Desconectou da Rede");
+            }
+        break;
+
+        /*
+        *** Estado Operacional Executa loop do Software ***
+        */
+        case kOperacional:
+            wifistatus = cc3000.getStatus();
+            if(wifistatus == STATUS_CONNECTED)
+            {
+                state = kOperacional;
+                tft.initR(INITR_BLACKTAB);   
+                tft.setTextWrap(false); // Allow text to run off right edge
+                tft.fillScreen(ST7735_BLACK);
+                state = kOperacional;
+                tft.println("Aguardando Client");
+                if(client_app() == true)
+                {    
+                    state = kOperacional;
+                }
+            }
+            else
+            {
+                
+                state = kBuscaWireless;
+            }
+    }
+}
+
