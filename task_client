@@ -1,0 +1,62 @@
+//Funcao Verifica se tem client conectando ao servido
+//Se tiver abre pagina html e executa alguma intercao 
+bool client_app(void) 
+{
+    //Verifica se a placa CC3300 esta com Servervidor habilitado e com algum cliente 
+    Adafruit_CC3000_ClientRef client = echoServer.available();
+    char c;
+    boolean error;
+    error = false;
+    //Verifica tem cliente ou seja alguem acessando o IP da Placa
+    //Ex: abrir um browser e digitar o ip da placa
+    if (client) 
+    { 
+        if (client.available() > 0) 
+        {        //Se tiver cliente entra
+            c = client.read();           //cria var e le o client
+            if (readString.length() < 100) 
+            {
+                readString += c;
+            }
+            //Criacao da Pagina HTML no IP do client
+            if (c == '\n') 
+            {
+                client.println("HTTP/1.1 200 OK");
+                client.println("Content-Type: text/html");
+                client.println("Connection: close");
+                client.println("Refresh: 5");
+                client.println();
+                client.println("<HTML>");
+                client.println("<BODY>");
+                client.println("<H1>Acende LED<H1>");
+                client.println("<hr />");
+                client.println("<br />");
+                client.println("<a href=\"/?ledon\"\>Ligar o led</a>");
+                client.println("<a href=\"/?ledoff\"\>Desligar o led</a><br />");
+                client.println("<a href=\"/?modo_debug\"\>Modo DeBug</a>");
+                client.println("<HTML>");
+                client.println("<BODY>");
+                delay(t_100ms);
+                client.stop();
+                //Verifica Mensagem apos IP
+                if (readString.indexOf("?ledon") > 0) 
+                {
+                    tft.println("LED ON");
+                }
+                //Verifica Mensagem apos IP
+                if (readString.indexOf("?ledoff") > 0) 
+                {
+                    tft.println("LED OFF");
+                }
+                error = true;
+            }
+            readString = "";
+        }
+    }
+    else
+    {
+        error = false;
+    }
+    return (error);
+}
+
