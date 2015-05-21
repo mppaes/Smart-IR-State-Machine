@@ -9,253 +9,127 @@
 * VersãoGit: N/A                                                             *
 *                                                                           *
 ****************************************************************************/
-
+ 
 /**
- * @ingroup task_Conexao
- * @brief   Função de que Lista as Redes Wireless Acces Point disponiveis
- * @param   Nenhum
- * @return  TRUE =   Redes Disponiveis OK
- * @return  FALSE = Não Existe Redes Disponiveis para Conexão Redes Disponiveis OK
- * 
+* @ingroup task_Conexao
+* @brief   Função de que Lista as Redes Wireless Acces Point disponiveis
+* @param   Nenhum
+* @return  TRUE =   Redes Disponiveis OK
+* @return  FALSE = Não Existe Redes Disponiveis para Conexão Redes Disponiveis OK
+*
  * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 10/fev/2015
- *
- */
+* @note Validado por:
+*
+* @author  Tec. Mateus P Paes (mppaes@me.com)
+* @date 10/fev/2015
+*
+*/
 /*********************************************************************
 * userver_cc3000begin
 *********************************************************************/
-
-bool userver_cc3000begin(void)
-{
-    /*** Variavel de Erro para retorno da Funcao ***/
-    boolean error;
-    error = false;
-    if(cc3000.begin() == true) 
+ void func_conexao_ip_rede(void)
+ {
+    if (!cc3000.begin())
     {
-          error = true;
+        Serial.println("Modulo nao inicializou");
+        while(500);
     }
-    else
+    Serial.println("HW CC3000 Inicializou");
+    delay(100);
+    /*** Verifica  conexao CC3000 com rede SSID PASS e SECURITY  ***/
+    if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY))
     {
-            error = false;
+        Serial.println("Falha =(");
+        while(500);
     }
-    return (error);
+    Serial.println("uC conectado a Rede Wifi");
+ 
+    /*** Verifica DHCP ***/
+    while (!cc3000.checkDHCP())
+    {    
+        delay(500);
+    } 
+    Serial.println("Verificando DHCP");
+   
+    /*** Verifica se placa pega IP mascara gateway ***/
+    while (!atribuir_ip_netmask_gateway_dhcp_dns())
+    {
+        delay(500);
+    }
+    Serial.println("IP Configurado");
+   
+    /*** Inicia Servidor ***/
+    echoServer.begin();
+    Serial.println("Servidor Inicializado");
 }
-
 /**
- * @ingroup task_Conexao
- * @brief   Função de que Lista as Redes Wireless Acces Point disponiveis
- * @param   Nenhum
- * @return  TRUE =   Redes Disponiveis OK
- * @return  FALSE = Não Existe Redes Disponiveis para Conexão Redes Disponiveis OK
- * 
+* @ingroup task_Conexao
+* @brief   Função de verificacao do DHCP
+* @param   Nenhum
+* @return  TRUE =
+ * @return  FALSE =
+ *
  * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 10/fev/2015
- *
- */
-/*********************************************************************
-* buscaWirelessDisponiveis
-*********************************************************************/
-bool userver_scanwireless(void)
-{
-    /*** Var de Controle de Erro ***/
-    bool error = false;
-    /*** Numero de Redes Disponiveis ***/
-    uint32_t index;
-    uint8_t rssi, sec;
-    uint8_t valid;
-    char ssidname[33]; 
-    i_matrix_qte_wifi = 0;
-    
-    /*** Inicialização do Display tft com cor Black Tab ***/
-    tft.fillScreen(ST7735_BLACK);
-    tft.print("SCAN");
-    delay(1000);
-    /***  ***/
-    if (!cc3000.startSSIDscan(&index)) 
-    {
-        error = false;
-    }
-    else
-    {
-        
-        if(index == 0)
-        {
-            error = false;
-        }
-        else
-        {
-            tft.println("================================================");
-            tft.print("Redes Wireless Encontradas:");
-            tft.println(index);
-            tft.println("================================================");
-            
-            /*** Enquanto Qta de Wifis Index é maior que 0 Exibir as redes  ***/
-            while (index > 0) 
-            {
-                index--;
-                valid = cc3000.getNextSSID(&rssi, &sec, ssidname);
-                cc3000.getNextSSID(&rssi, &sec, ssidname);
-                tft.print("Rede: ");
-                tft.println(ssidname);
-                tft.print("Seguranca: ");
-                tft.println(sec);
-                ssid_matrix[i_matrix_qte_wifi] = *ssidname;
-                sec_matrix[i_matrix_qte_wifi] = sec;
-                i_matrix_qte_wifi++;
-            }
-            error = true;
-        }
-    }
-
-    tft.println("================================================");
-    delay(10000);
-    cc3000.stopSSIDscan();
-    return (error);    
-}
-
-/**
- * @ingroup task_Conexao
- * @brief   Função de que Conecta no Acces Point Selecionado
- * @param   Nenhum
- * @return  TRUE = 
- * @return  FALSE = 
- * 
- * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 10/fev/2015
- *
- */
-/*********************************************************************
-* userver_accespoint
-*********************************************************************/
-bool userver_accespoint(void)
-{
-    /*** Variavel que define numero maximo de Tentativa de Conexao ao AP ***/
-    int count_userver_accespoint;
-    /*** Variavel de Erro para retorno da Funcao ***/
-    boolean error;
-    error = false;
-    count_userver_accespoint = 0;
-    while(count_userver_accespoint = !10)
-    {
-        if(cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY) == true) 
-        {
-          error = true;
-          tft.println("Conexao com Rede OK");
-          break;
-        }
-        else
-        {
-          error = false;
-        }
-        count_userver_accespoint++;
-    }
-    return (error);
-}
-
-/**
- * @ingroup task_Conexao
- * @brief   Função de verificacao do DHCP
- * @param   Nenhum
- * @return  TRUE = 
- * @return  FALSE = 
- * 
- * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 10/fev/2015
- *
- */
-/*********************************************************************
-* userver_checkdhcp
-*********************************************************************/
-bool userver_checkdhcp(void)
-{
-    /*** Variavel que define numero maximo de Tentativa de Conexao ao AP ***/
-    signed int count_userver_checkdhcp;
-    /*** Variavel de Erro para retorno da Funcao ***/
-    boolean error;
-    error = false;
-    count_userver_checkdhcp = 0;
-    /*** Verifica DHCP Enquanto DHCP nao for true fica na funcao ***/
-    while(count_userver_checkdhcp = !1000000)
-    {
-        if(cc3000.checkDHCP() == true) 
-        {
-            error = true;
-            break;
-        }
-        else
-        {
-            error = false;
-        }
-        count_userver_checkdhcp++;
-    }
-    return (error);   
-}
-
-/**
- * @ingroup task_Conexao
- * @brief   Função de verificacao do DHCP
- * @param   Nenhum
- * @return  TRUE = 
- * @return  FALSE = 
- * 
- * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 10/fev/2015
- *
- */
+* @note Validado por:
+*
+* @author  Tec. Mateus P Paes (mppaes@me.com)
+* @date 10/fev/2015
+*
+*/
 /*********************************************************************
 * userver_getip_dinamico
 *********************************************************************/
-bool userver_getip_dinamico(void)
+bool atribuir_ip_netmask_gateway_dhcp_dns(void)
 {
-    /*** Variavel que define numero maximo de Tentativa de Conexao ao AP ***/
-    signed int count_userver_getip_dinamico;
-    /*** Variavel de Erro para retorno da Funcao ***/
-    boolean error;
-    error = false;
-    count_userver_getip_dinamico = 0;
-    tft.println("Gerando IP Dinamico");
-    while(count_userver_getip_dinamico = !1000000)
-    {
-        if(cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv) == true) 
-        {
-            error = true;
-            tft.print("Server IP:");
-            tft.println(ipAddress);
-            cc3000.printIPdotsRev(ipAddress);
-            tft.print("Mascara do IP:");
-            tft.println(netmask);
-            cc3000.printIPdotsRev(netmask);
-            tft.print("Gateway:");
-            tft.println(gateway);
-            cc3000.printIPdotsRev(gateway);
-            tft.print("DHCP Server:");
-            tft.println(dhcpserv);
-            cc3000.printIPdotsRev(dhcpserv);
-            tft.print("DNS Server:");
-            tft.println(dnsserv);
-            cc3000.printIPdotsRev(dnsserv);
-            break;
-        }
-        else
-        {
-            error = false;
-        }
-        count_userver_getip_dinamico++;
-    }
-    return (error);  
+  uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv; //Variaveis IP etc..
+  //If shield nao conectar e atribuir IP via DHCP automatico
+  //nao atribui IP a placa e retorna false
+  if(!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv))
+  {
+    Serial.println("Desabilitado o endereco de IP!");
+    return false;
+  }
+  else //Se Shield atribui IP via DHCP, imprime na serial os valores
+  {
+    Serial.println("IPAddress");
+    cc3000.printIPdotsRev(ipAddress);
+    Serial.println();
+   return true;
+  }
 }
+ 
+/**
+* @ingroup task_Conexao
+* @brief   Função de verificacao do DHCP
+* @param   Nenhum
+* @return  TRUE =
+ * @return  FALSE =
+ *
+ * @note Verificado por:
+* @note Validado por:
+*
+* @author  Tec. Mateus P Paes (mppaes@me.com)
+* @date 10/fev/2015
+*
+*/
+/*********************************************************************
+* func_verifica_conexao
+*********************************************************************/
+bool func_verifica_conexao(void)
+{
+    boolean error;
+    wifistatus = cc3000.getStatus();
+    if(wifistatus == STATUS_CONNECTED)
+    {
+        error = true;
+        //Serial.println(" WIFI Conectado");
+    }
+    /*** Se Desconectou Volta para State COnectando ***/
+    if(wifistatus == STATUS_DISCONNECTED)
+    {           
+        error = false;
+        Serial.println("Desconectou da Rede");
+    }
+    return (error);
+}
+  
