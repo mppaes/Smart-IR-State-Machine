@@ -1,62 +1,113 @@
-//Funcao Verifica se tem client conectando ao servido
-//Se tiver abre pagina html e executa alguma intercao 
-bool client_app(void) 
+/****************************************************************************
+*                                                  São José dos Campos - SP *
+*                                                                           *
+* Mateus Pinto Paes                                                         *
+* ============================================                              *
+*                                                                           *
+* Programa: HOME-IR                                                         *
+* Projeto: HOME-IR                                                          *
+* VersãoGit: N/A                                                             *
+*                                                                           *
+****************************************************************************/
+ 
+/**
+* @ingroup task_Conexao
+* @brief   Função de que Lista as Redes Wireless Acces Point disponiveis
+* @param   Nenhum
+* @return  TRUE =   Redes Disponiveis OK
+* @return  FALSE = Não Existe Redes Disponiveis para Conexão Redes Disponiveis OK
+*
+ * @note Verificado por:
+* @note Validado por:
+*
+* @author  Tec. Mateus P Paes (mppaes@me.com)
+* @date 10/fev/2015
+*
+*/
+/*********************************************************************
+* userver_cc3000begin
+*********************************************************************/
+ 
+void func_client_app(void) 
 {
-    //Verifica se a placa CC3300 esta com Servervidor habilitado e com algum cliente 
-    Adafruit_CC3000_ClientRef client = echoServer.available();
-    char c;
-    boolean error;
-    error = false;
-    //Verifica tem cliente ou seja alguem acessando o IP da Placa
-    //Ex: abrir um browser e digitar o ip da placa
-    if (client) 
-    { 
-        if (client.available() > 0) 
-        {        //Se tiver cliente entra
-            c = client.read();           //cria var e le o client
-            if (readString.length() < 100) 
+    Adafruit_CC3000_ClientRef client = echoServer.available(); 
+    if (client)
+    {
+        while (client.connected())
+        {
+            if (client.available())
             {
-                readString += c;
-            }
-            //Criacao da Pagina HTML no IP do client
-            if (c == '\n') 
+                char c = client.read();
+     
+                if (readString.length() < 100)
+                {
+                    readString += c;             
+                }
+    
+            if (c == '\n')
             {
                 client.println("HTTP/1.1 200 OK");
                 client.println("Content-Type: text/html");
-                client.println("Connection: close");
-                client.println("Refresh: 5");
                 client.println();
+ 
                 client.println("<HTML>");
+                client.println("<HEAD>");
+                client.println("<TITLE>HOME IR</TITLE>");
+                client.println("</HEAD>");
                 client.println("<BODY>");
-                client.println("<H1>Acende LED<H1>");
+                client.println("<H1>SMART INFRA-RED</H1>");
                 client.println("<hr />");
                 client.println("<br />");
-                client.println("<a href=\"/?ledon\"\>Ligar o led</a>");
-                client.println("<a href=\"/?ledoff\"\>Desligar o led</a><br />");
-                client.println("<a href=\"/?modo_debug\"\>Modo DeBug</a>");
-                client.println("<HTML>");
-                client.println("<BODY>");
-                delay(t_100ms);
+ 
+                client.println("<a href=\"/?ledon\"\">Ligar o led</a>");
+                client.println("<a href=\"/?ledoff\"\">Desligar o led</a><br />");   
+                client.println("<a href=\"/?debugon\"\">Debug ON</a>");
+                client.println("<a href=\"/?debugoff\"\">Debug OFF</a><br />");    
+ 
+                client.println("</BODY>");
+                client.println("</HTML>");
+ 
+                delay(1);
                 client.stop();
-                //Verifica Mensagem apos IP
-                if (readString.indexOf("?ledon") > 0) 
+                if(state == kLeituraDoIR)
                 {
-                    tft.println("LED ON");
-                }
-                //Verifica Mensagem apos IP
-                if (readString.indexOf("?ledoff") > 0) 
+                    if(readString.indexOf("?debugoff") > 0)
+                    {
+                      Serial.println("Debug OFF");
+                      state = kOperacional;
+                      bexibe_primeira_vez = false;
+                    }
+                }             
+                if(state == kOperacional)
                 {
-                    tft.println("LED OFF");
+                    if(readString.indexOf("?ledon") > 0)
+                    {
+                      Serial.println("LED ON");
+                      state = kOperacional;
+                      bexibe_primeira_vez = false;
+                    }
+                    if(readString.indexOf("?ledoff") > 0)
+                    {
+                      Serial.println("LED OFF");
+                      state = kOperacional;
+                      bexibe_primeira_vez = false;
+                    }
+                    if(readString.indexOf("?debugon") > 0)
+                    {
+                      Serial.println("Debug ON");
+                      state = kLeituraDoIR;
+                      bexibe_primeira_vez = false;
+                    }
+                    if(readString.indexOf("?debugoff") > 0)
+                    {
+                      Serial.println("Debug OFF");
+                      state = kOperacional;
+                      bexibe_primeira_vez = false;
+                    }
                 }
-                error = true;
+                readString="";    
             }
-            readString = "";
+          }
         }
     }
-    else
-    {
-        error = false;
-    }
-    return (error);
 }
-
