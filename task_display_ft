@@ -1,55 +1,39 @@
-/****************************************************************************
-*                                                  São José dos Campos - SP *
-*                                                                           *
-* Mateus Pinto Paes                                                         *
-* ============================================                              *
-*                                                                           *
-* Programa: HOME-IR                                                         *
-* Projeto: HOME-IR                                                          *
-* VersãoGit: N/A                                                             *
-*                                                                           *
-****************************************************************************/
-
-/**
- * @ingroup task_displaytft
- * @brief   Função que exibe nos display tft as informações
- * @param   Nenhum
- * @return  
- * @return  
- * 
- * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 06/mai/2015
- *
- */
-/*********************************************************************
-* rotateText
-*********************************************************************/
-
-void rotateText() {
-  for (uint8_t i=0; i<4; i++) {
-    tft.fillScreen(ST7735_BLACK);
-    Serial.println(tft.getRotation(), DEC);
-
-    tft.setCursor(0, 30);
-    tft.setTextColor(ST7735_RED);
-    tft.setTextSize(1);
-    tft.println("Hello World!");
-    tft.setTextColor(ST7735_YELLOW);
-    tft.setTextSize(2);
-    tft.println("Hello World!");
-    tft.setTextColor(ST7735_GREEN);
-    tft.setTextSize(3);
-    tft.println("Hello World!");
-    tft.setTextColor(ST7735_BLUE);
-    tft.setTextSize(4);
-    tft.print(1234.567);
-    while (!Serial.available());
-    Serial.read();  Serial.read();  Serial.read();
+/**************************************************************************** 
+*                                                  São José dos Campos - SP * 
+*                                                                           * 
+* Mateus Pinto Paes                                                         * 
+* ============================================                              * 
+*                                                                           * 
+* Programa: HOME-IR                                                         * 
+* Projeto: HOME-IR                                                          * 
+* VersãoGit: N/A                                                             * 
+*                                                                           * 
+****************************************************************************/ 
   
-    tft.setRotation(tft.getRotation()+1);
-  }
-}
+/** 
+* @ingroup task_displaytft 
+* @brief   Função que exibe nos display tft as informações 
+* @param   Nenhum 
+* @return   
+ * @return   
+ *  
+ * @note Verificado por: 
+* @note Validado por: 
+* 
+* @author  Tec. Mateus P Paes (mppaes@me.com) 
+* @date 06/mai/2015
+*
+*/
+/*********************************************************************
+* testdrawtext
+*********************************************************************/
+void testdrawtext(char *text, uint16_t color)
+{
+  tft.fillScreen(ST7735_BLACK);
+  tft.setCursor(0, 0);
+  tft.setTextColor(color);
+  tft.setTextWrap(true);
+  tft.println(text); 
+} 
+  
 
