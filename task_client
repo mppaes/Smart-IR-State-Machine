@@ -8,8 +8,23 @@
 * Projeto: HOME-IR                                                          *
 * VersãoGit: N/A                                                             *
 *                                                                           *
-****************************************************************************/
- 
+****************************************************************************/ 
+
+/**
+* @ingroup task_Conexao
+* @brief   Função de que Lista as Redes Wireless Acces Point disponiveis
+* @param   Nenhum
+* @return  TRUE =   Redes Disponiveis OK
+* @return  FALSE = Não Existe Redes Disponiveis para Conexão Redes Disponiveis OK
+*
+ * @note Verificado por:
+* @note Validado por:
+*
+* @author  Tec. Mateus P Paes (mppaes@me.com)
+* @date 10/fev/2015
+*
+*/
+
 /**
 * @ingroup task_Conexao
 * @brief   Função de que Lista as Redes Wireless Acces Point disponiveis
@@ -30,12 +45,16 @@
  
 void func_client_app(void) 
 {
+    int teste_1;
+    long int aux;
     Adafruit_CC3000_ClientRef client = echoServer.available(); 
+    client = echoServer.available(); 
+    //Verifica se Tem algum Cliente Conectando no Servidor
     if (client)
     {
-        while (client.connected())
+        while (client.connected())// Enquanto Cliente Estiver Conectado  Verifica se cliente é Valido
         {
-            if (client.available())
+            if (client.available())//Verifica Dados do Cliente e Concateno na Var readString
             {
                 char c = client.read();
      
@@ -43,13 +62,11 @@ void func_client_app(void)
                 {
                     readString += c;             
                 }
-    
-            if (c == '\n')
+            if (c == '\n')//Verifica Cursor de final de Linha para Criar Pagina HTML no Cliente
             {
                 client.println("HTTP/1.1 200 OK");
                 client.println("Content-Type: text/html");
                 client.println();
- 
                 client.println("<HTML>");
                 client.println("<HEAD>");
                 client.println("<TITLE>HOME IR</TITLE>");
@@ -58,52 +75,107 @@ void func_client_app(void)
                 client.println("<H1>SMART INFRA-RED</H1>");
                 client.println("<hr />");
                 client.println("<br />");
- 
-                client.println("<a href=\"/?ledon\"\">Ligar o led</a>");
-                client.println("<a href=\"/?ledoff\"\">Desligar o led</a><br />");   
-                client.println("<a href=\"/?debugon\"\">Debug ON</a>");
-                client.println("<a href=\"/?debugoff\"\">Debug OFF</a><br />");    
- 
+            
+                client.println("<a href=\"/SALA-TV-LIGA\"\">Ligar TV</a>");  
+                client.println("<a href=\"/SALA-TV-CH+\"\">Canal +</a>");  
+                client.println("<a href=\"/SALA-TV-CH-\"\">Canal -</a>");  
+                client.println("<a href=\"/SALA-TV-VOL+\"\">Volume +</a>");  
+                client.println("<a href=\"/SALA-TV-VOL-\"\">Volume -</a>");  
+                client.println("<a href=\"/Gravar-Tecla\"\">Gravar Tecla</a>");
+                client.println("<a href=\"/Voltar-Operacional\"\">Volta Operacional</a><br />");    
+            
                 client.println("</BODY>");
                 client.println("</HTML>");
- 
+            
                 delay(1);
                 client.stop();
                 if(state == kLeituraDoIR)
                 {
-                    if(readString.indexOf("?debugoff") > 0)
+                    Serial.println("Pressione o Botao do Smartphone Desejado");    
+                    if(readString.indexOf("Voltar-Operacional") > 0)
                     {
-                      Serial.println("Debug OFF");
-                      state = kOperacional;
-                      bexibe_primeira_vez = false;
+                        Serial.println("Voltar-Operacional");
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
                     }
+                
+                    if(readString.indexOf("SALA-TV-LIGA") > 0)
+                    {
+                        Serial.println("SALA-TV-LIGA");
+                        Serial.println("Aperte Botao do Controle");
+                        teste_1 = 0;
+                        func_hab_recep(teste_1);
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
+                    }  
+
+                    if(readString.indexOf("SALA-TV-CH+") > 0)
+                    {
+                        Serial.println("SALA-TV-CH+");
+                        Serial.println("Aperte Botao do Controle");
+                        teste_1 = 1;
+                        func_hab_recep(teste_1);
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
+                    } 
+                    if(readString.indexOf("SALA-TV-CH+") > 0)
+                    {
+                        Serial.println("SALA-TV-CH-");
+                        Serial.println("Aperte Botao do Controle");
+                        teste_1 = 2;
+                        func_hab_recep(teste_1);
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
+                    } 
+
+                    if(readString.indexOf("SALA-TV-VOL+") > 0)
+                    {
+                        Serial.println("SALA-TV-VOL+");
+                        Serial.println("Aperte Botao do Controle");
+                        teste_1 = 3;
+                        func_hab_recep(teste_1);
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
+                    }
+
+                    if(readString.indexOf("SALA-TV-VOL-") > 0)
+                    {
+                        Serial.println("SALA-TV-VOL-");
+                        Serial.println("Aperte Botao do Controle");
+                        teste_1 = 4;
+                        func_hab_recep(teste_1);
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
+                    } 
                 }             
                 if(state == kOperacional)
                 {
-                    if(readString.indexOf("?ledon") > 0)
+                    if(readString.indexOf("SALA-TV-LIGA") > 0)
                     {
-                      Serial.println("LED ON");
-                      state = kOperacional;
-                      bexibe_primeira_vez = false;
+                        Serial.println("SALA-TV-LIGA");
+                        //aux = como[0].dev[0].tec[0].ler_ir[0].dado_ir;
+                        //Serial.println(aux, HEX);
+                        Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
                     }
-                    if(readString.indexOf("?ledoff") > 0)
+                    
+                    if(readString.indexOf("SALA-TV-CH+") > 0)
                     {
-                      Serial.println("LED OFF");
-                      state = kOperacional;
-                      bexibe_primeira_vez = false;
+                        Serial.println("SALA-TV-CH+");
+                        //aux = como[0].dev[0].tec[0].ler_ir[0].dado_ir;
+                        //Serial.println(aux, HEX);
+                        Serial.println(como[0].dev[0].tec[0].ler_ir[1].dado_ir, HEX);
+                        state = kOperacional;
+                        bexibe_primeira_vez = false;
                     }
-                    if(readString.indexOf("?debugon") > 0)
+                    if(readString.indexOf("Gravar-Tecla") > 0)
                     {
-                      Serial.println("Debug ON");
-                      state = kLeituraDoIR;
-                      bexibe_primeira_vez = false;
+                        Serial.println("Gravar Tecla");
+                        state = kLeituraDoIR;
+                        bexibe_primeira_vez = false;
                     }
-                    if(readString.indexOf("?debugoff") > 0)
-                    {
-                      Serial.println("Debug OFF");
-                      state = kOperacional;
-                      bexibe_primeira_vez = false;
-                    }
+
                 }
                 readString="";    
             }
@@ -111,3 +183,11 @@ void func_client_app(void)
         }
     }
 }
+
+
+
+
+
+
+
+
