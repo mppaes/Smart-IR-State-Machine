@@ -34,7 +34,7 @@
         Serial.println("Modulo nao inicializou");
         while(500);
     }
-    Serial.println("HW CC3000 Inicializou");
+    Serial.println("Modulo de Interface Wireless Inicializado");
     delay(100);
     /*** Verifica  conexao CC3000 com rede SSID PASS e SECURITY  ***/
     if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY))
@@ -42,14 +42,14 @@
         Serial.println("Falha =(");
         while(500);
     }
-    Serial.println("uC conectado a Rede Wifi");
+    Serial.println("Conexão com Acces Point OK");
  
     /*** Verifica DHCP ***/
     while (!cc3000.checkDHCP())
     {    
         delay(500);
     } 
-    Serial.println("Verificando DHCP");
+    Serial.println("DHCP OK");
    
     /*** Verifica se placa pega IP mascara gateway ***/
     while (!atribuir_ip_netmask_gateway_dhcp_dns())
@@ -81,29 +81,31 @@
 *********************************************************************/
 bool atribuir_ip_netmask_gateway_dhcp_dns(void)
 {
+  boolean error;
   uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv; //Variaveis IP etc..
   //If shield nao conectar e atribuir IP via DHCP automatico
   //nao atribui IP a placa e retorna false
   if(!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv))
   {
     Serial.println("Desabilitado o endereco de IP!");
-    return false;
+    error = false;
   }
   else //Se Shield atribui IP via DHCP, imprime na serial os valores
   {
-    Serial.println("IPAddress");
+    Serial.print("Módulo com Endereço de IP:");
     cc3000.printIPdotsRev(ipAddress);
     Serial.println();
-   return true;
+   error = true;
   }
+  return (error);
 }
  
 /**
 * @ingroup task_Conexao
-* @brief   Função de verificacao do DHCP
+* @brief   Função de verificacao de Conexão
 * @param   Nenhum
-* @return  TRUE =
- * @return  FALSE =
+* @return  TRUE =    Conexão OK
+ * @return  FALSE =  Conexão ÑOK
  *
  * @note Verificado por:
 * @note Validado por:
@@ -132,4 +134,3 @@ bool func_verifica_conexao(void)
     }
     return (error);
 }
-  
