@@ -9,167 +9,215 @@
 * VersãoGit: N/A                                                             *
 *                                                                           *
 ****************************************************************************/
-
+  
 /**
- * @ingroup task_teclado
- * @brief   Função Que verifica se alguma tecla foi pressionada
- * @param   Nenhum
- * @return  true =  tecla encontrada dentro dos paramentros
- * @return  false = tecla fora dos parametros
+* @ingroup task_displaytft
+* @brief   Função que exibe nos display tft as informações
+* @param   Nenhum
+* @return  
+ * @return  
  * 
  * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 06/mai/2015
- *
- */
-/*********************************************************************
-* selec_rede_wifi_teclado
-*********************************************************************/
-bool selec_rede_wifi_teclado(void)
-{ 
-    /*** Guarda valor do teclado e da serial ***/
-    char key_teclado, key_serial;
-    /*** Var de Controle de Erro ***/
-    bool error = false;
-    /*** Le Buffer da Serial e Teclado ***/
-    key_teclado = kpd.getKey();
-    if (Serial.available()) //se byte pronto para leitura
-    {
-    
-        switch(Serial.read())      //verifica qual caracter recebido
-        {
-            case '1':                  //caso '1'
-                key_serial = '1';
-            break;
-
-            case '2':                  //caso '2'
-                key_serial = '2';
-            break;
-
-            case '3':                  //caso '3'
-                key_serial = '3';
-            break;
-
-            case '4':                  //caso '4'
-                key_serial = '4';
-            break;
-        }
-    }
-
-    /*** Verifica se a Primeira Rede exibida é selecionada  ***/
-    if (key_teclado == '1' || key_serial == '1')
-    {
-        state = kConectandoWireless;
-        error = true;
-        tft.println("Rede Selecionada: ");
-        WLAN_SSID[0] = ssid_matrix[0];
-        WLAN_SECURITY = sec_matrix[0];
-        tft.println(WLAN_SSID);
-        tft.println(WLAN_SECURITY);
-    }
-
-    /*** Verifica se a Segunda Rede exibida é selecionada  ***/
-    else if (key_teclado == '2' || key_serial == '2')
-    {
-        state = kConectandoWireless;
-        error = true;
-        tft.println("Rede Selecionada: ");
-        WLAN_SSID[1] = ssid_matrix[1];
-        WLAN_SECURITY = sec_matrix[1];
-        tft.println(WLAN_SSID);
-        tft.println(WLAN_SECURITY);
-    }
-
-    /*** Verifica se a Segunda Rede exibida é selecionada  ***/
-    else if (key_teclado == '3' || key_serial == '3')
-    {
-        state = kConectandoWireless;
-        error = true;
-        tft.println("Rede Selecionada: ");
-        WLAN_SSID[3] = ssid_matrix[3];
-        WLAN_SECURITY = sec_matrix[3];
-        tft.println(WLAN_SSID);
-        tft.println(WLAN_SECURITY);
-    }
-
-    /*** Verifica se a Segunda Rede exibida é selecionada  ***/
-    else if(key_teclado == '4' || key_serial == '4')
-    {
-        state = kConectandoWireless;
-        error = true;
-        tft.println("Rede Selecionada: ");
-        WLAN_SSID[4] = ssid_matrix[4];
-        WLAN_SECURITY = sec_matrix[4];
-        tft.println(WLAN_SSID);
-        tft.println(WLAN_SECURITY);
-    }
-    else
-    {
-        error = false;
-    }
-
-}
-/**
- * @ingroup task_teclado
- * @brief   Função Que verifica se alguma tecla foi pressionada
- * @param   Nenhum
- * @return  true =  tecla encontrada dentro dos paramentros
- * @return  false = tecla fora dos parametros
- * 
- * @note Verificado por:
- * @note Validado por:
- *
- * @author  Tec. Mateus P Paes (mppaes@me.com)
- * @date 06/mai/2015
- *
- */
-/*********************************************************************
-* selec_senha_wifi_teclado
-*********************************************************************/
-char selec_senha_wifi_teclado(void)
-{
-    /*** Goto Para Redefinir Senha ***/
-    ret_reset_senha:
-    char var_teclado, dado_serial;
-    char senha_teclado, aux_senha_teclado[];
-    uint8_t i_matriz_senha =0;
-    tft.println("Se Primeira Vez Press *:");
-    tft.println("Confirma Senha Press #:");
-    tft.print("Senha:");
-
-    /*** Le Teclado até ser pressionado #, Enquanto não é pressionado concatena as string ***/
-    while (var_teclado =! fim_da_senha)
-    {
-        var_teclado = kpd.getKey();
-        for(i_matriz_senha = 0; i = fim_da_senha; i_matriz_senha++)
-        {
-            senha_teclado []
-        }
-    }      
-}
-
-
-
-/*#include <Password.h>
-
-Password password = Password( "1234" );
-
-void setup(){
-  Serial.begin(9600);
- 
-  password.append('1');   //add 1 to the guessed password
-  password.append('2');   //add 2 to the guessed password
-  password << '3' << '4'; //add 3 and 4 to the guessed password
-  Serial.println( password.evaluate() ? "true":"false" ); //should print true, since 1234 == 1234
-  
-  password.reset(); //reset the guessed password to NULL
-  Serial.println( password.evaluate() ? "true":"false" ); //should print false, since 1234 != NULL
-  
-  password.set("qwerty"); //set target password to qwerty
-  Serial.println( password.is("qwerty") ? "true":"false" ); //should print true, since qwerty == qwerty
-  Serial.println( password == "qwirty" ? "true":"false" ); //should print false, since qwerty != qwirty
-}
+* @note Validado por:
+*
+* @author  Tec. Mateus P Paes (mppaes@me.com)
+* @date 06/mai/2015
+*
 */
-//void loop(){/*nothing to loop*/}
+
+/*********************************************************************
+* testdrawtext
+*********************************************************************/
+void func_hab_recep (int teste)
+{
+    int botao_n_ok =0;
+    long int data_aux;
+    int envio = 0;
+    long int value_erro = 0xFFFFFFFF;
+
+
+    switch (teste)
+			{
+				//Controle TV
+				case 0:
+					//Enquanto nao for Gravado 3 vezes o dado IR fica na funcao
+					teste = 0;
+					while (botao_n_ok != 2)
+					{
+						if (envio == 0)
+						{
+							Serial.println("Aperte o Botao Desejado");
+							envio++;
+						}
+                        else if (envio == 2)
+                        {
+                            Serial.println("Aperte o Botao Desejado");
+                            envio++;
+                        }
+                        /*** Habilita Leitura do Receptor IR ***/
+    					IRRecv.enableIRIn();
+    					delay(500);
+						if (IRRecv.decode(&ir_results)) //Verifico se Tem Dado 
+					    {
+					        	//Verifica se Dado é Valido, Se For Grava dado na var valor_ir_tv
+					        	if (ir_results.value != value_erro) 
+					        	{
+						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
+							        Serial.println(ir_results.value, HEX);
+							        valor_ir_tv[botao_n_ok] = ir_results.value;
+							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        envio++;
+							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
+							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
+							        {
+								        //Verifica se dado gravado é igual ao Anterior 
+								        if ((valor_ir_tv[botao_n_ok]) == (valor_ir_tv[botao_n_ok - 1]))
+								        {									        
+			                                if (botao_n_ok == 1)
+			                                {
+			                                    Serial.println("Botao Igual ao anterior");
+										        data_aux = valor_ir_tv[botao_n_ok];
+										        Serial.print("Sinal do DATA AUX:");
+	                                            Serial.println(data_aux, HEX);
+			                                    como[0].dev[0].tec[0].ler_ir[0].dado_ir = data_aux;
+			                                    //Serial.print("Sinal do Struct:");
+	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+	                                            IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+			                                }
+			                                botao_n_ok++;
+									    }
+									    //Se dado gravado for diferente do anterior descarta gravaçao e volta Operacional
+									    else									    
+									    {
+									    	Serial.println("Botao Diferente do anterior");
+									    	for (int i = 0; i < 1; ++i) //Limpa os Dados 
+									    	{
+									    		valor_ir_tv[i] = 0;
+									    	}
+									    	Serial.println("Dado Errado Grave Novamente");
+									    	botao_n_ok = 2;
+									    }
+									}
+									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
+									else
+									{
+										Serial.println("Botao 0 Gravado incrementa botao");
+										botao_n_ok++;
+									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+									}
+								}
+								IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+							    
+					    }
+					}
+					Serial.print("Sinal do Struct:");
+	                Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+                    state = kOperacional;
+				break;
+
+				case 1:
+				//Enquanto nao for Gravado 3 vezes o dado IR fica na funcao
+					teste = 0;
+					while (botao_n_ok != 2)
+					{
+						if (envio == 0)
+						{
+							Serial.println("Aperte o Botao Desejado");
+							envio++;
+						}
+                        else if (envio == 2)
+                        {
+                            Serial.println("Aperte o Botao Desejado");
+                            envio++;
+                        }
+                        /*** Habilita Leitura do Receptor IR ***/
+    					IRRecv.enableIRIn();
+    					delay(500);
+						if (IRRecv.decode(&ir_results)) //Verifico se Tem Dado 
+					    {
+					        	//Verifica se Dado é Valido, Se For Grava dado na var valor_ir_tv
+					        	if (ir_results.value != value_erro) 
+					        	{
+						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
+							        Serial.println(ir_results.value, HEX);
+							        valor_ir_tv[botao_n_ok] = ir_results.value;
+							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        envio++;
+							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
+							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
+							        {
+								        //Verifica se dado gravado é igual ao Anterior 
+								        if ((valor_ir_tv[botao_n_ok]) == (valor_ir_tv[botao_n_ok - 1]))
+								        {									        
+			                                if (botao_n_ok == 1)
+			                                {
+			                                    Serial.println("Botao Igual ao anterior");
+										        data_aux = valor_ir_tv[botao_n_ok];
+										        Serial.print("Sinal do DATA AUX:");
+	                                            Serial.println(data_aux, HEX);
+			                                    como[0].dev[0].tec[0].ler_ir[1].dado_ir = data_aux;
+			                                    //Serial.print("Sinal do Struct:");
+	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+	                                            IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+			                                }
+			                                botao_n_ok++;
+									    }
+									    //Se dado gravado for diferente do anterior descarta gravaçao e volta Operacional
+									    else									    
+									    {
+									    	Serial.println("Botao Diferente do anterior");
+									    	for (int i = 0; i < 1; ++i) //Limpa os Dados 
+									    	{
+									    		valor_ir_tv[i] = 0;
+									    	}
+									    	Serial.println("Dado Errado Grave Novamente");
+									    	botao_n_ok = 2;
+									    }
+									}
+									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
+									else
+									{
+										Serial.println("Botao 0 Gravado incrementa botao");
+										botao_n_ok++;
+									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+									}
+								}
+								IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+							    
+					    }
+					}
+					Serial.print("Sinal do Struct:");
+	                Serial.println(como[0].dev[0].tec[0].ler_ir[1].dado_ir, HEX);
+                    state = kOperacional;
+				break;
+				
+				default:
+				break;
+			}
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
