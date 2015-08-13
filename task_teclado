@@ -32,6 +32,7 @@ void func_hab_recep (int teste)
 {
     int botao_n_ok =0;
     long int data_aux;
+    long int valor_ir_tv[3];
     int envio = 0;
     long int value_erro = 0xFFFFFFFF;
 
@@ -40,18 +41,18 @@ void func_hab_recep (int teste)
 			{
 				//Controle TV
 				case 0:
-					//Enquanto nao for Gravado 3 vezes o dado IR fica na funcao
-					teste = 0;
+					//Enquanto nao for Gravado 2 vezes o dado IR fica na funcao
+					//teste = 0;
 					while (botao_n_ok != 2)
 					{
 						if (envio == 0)
 						{
-							Serial.println("Aperte o Botao Desejado");
+							//Serial.println("Aperte o Botao Desejado");
 							envio++;
 						}
                         else if (envio == 2)
                         {
-                            Serial.println("Aperte o Botao Desejado");
+                            Serial.println("Aperte Novamente o mesmo Botao do Controle Remoto a Ser gravado");
                             envio++;
                         }
                         /*** Habilita Leitura do Receptor IR ***/
@@ -83,8 +84,9 @@ void func_hab_recep (int teste)
 			                                    como[0].dev[0].tec[0].ler_ir[0].dado_ir = data_aux;
 			                                    //Serial.print("Sinal do Struct:");
 	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
-	                                            IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+	                                            //IRRecv.resume(); // Recebe o Proximo Valor do Buffer
 			                                }
+			                                //Incrementa Botao para Sair do While
 			                                botao_n_ok++;
 									    }
 									    //Se dado gravado for diferente do anterior descarta gravaçao e volta Operacional
@@ -117,18 +119,18 @@ void func_hab_recep (int teste)
 				break;
 
 				case 1:
-				//Enquanto nao for Gravado 3 vezes o dado IR fica na funcao
-					teste = 0;
+				//Enquanto nao for Gravado 2 vezes o dado IR fica na funcao
+					//teste = 0;
 					while (botao_n_ok != 2)
 					{
 						if (envio == 0)
 						{
-							Serial.println("Aperte o Botao Desejado");
+							//Serial.println("Aperte o Botao Desejado");
 							envio++;
 						}
                         else if (envio == 2)
                         {
-                            Serial.println("Aperte o Botao Desejado");
+                            Serial.println("Aperte Novamente o mesmo Botao do Controle Remoto a Ser gravado");
                             envio++;
                         }
                         /*** Habilita Leitura do Receptor IR ***/
@@ -160,8 +162,9 @@ void func_hab_recep (int teste)
 			                                    como[0].dev[0].tec[0].ler_ir[1].dado_ir = data_aux;
 			                                    //Serial.print("Sinal do Struct:");
 	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
-	                                            IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+	                                            //IRRecv.resume(); // Recebe o Proximo Valor do Buffer
 			                                }
+			                                //Incrementa Botao para Sair do While
 			                                botao_n_ok++;
 									    }
 									    //Se dado gravado for diferente do anterior descarta gravaçao e volta Operacional
@@ -193,11 +196,252 @@ void func_hab_recep (int teste)
                     state = kOperacional;
 				break;
 				
+				case 2:
+				//Enquanto nao for Gravado 2 vezes o dado IR fica na funcao
+					//teste = 0;
+					while (botao_n_ok != 2)
+					{
+						if (envio == 0)
+						{
+							//Serial.println("Aperte o Botao Desejado");
+							envio++;
+						}
+                        else if (envio == 2)
+                        {
+                            Serial.println("Aperte Novamente o mesmo Botao do Controle Remoto a Ser gravado");
+                            envio++;
+                        }
+                        /*** Habilita Leitura do Receptor IR ***/
+    					IRRecv.enableIRIn();
+    					delay(500);
+						if (IRRecv.decode(&ir_results)) //Verifico se Tem Dado 
+					    {
+					        	//Verifica se Dado é Valido, Se For Grava dado na var valor_ir_tv
+					        	if (ir_results.value != value_erro) 
+					        	{
+						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
+							        Serial.println(ir_results.value, HEX);
+							        valor_ir_tv[botao_n_ok] = ir_results.value;
+							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        envio++;
+							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
+							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
+							        {
+								        //Verifica se dado gravado é igual ao Anterior 
+								        if ((valor_ir_tv[botao_n_ok]) == (valor_ir_tv[botao_n_ok - 1]))
+								        {									        
+			                                if (botao_n_ok == 1)
+			                                {
+			                                    Serial.println("Botao Igual ao anterior");
+										        data_aux = valor_ir_tv[botao_n_ok];
+										        Serial.print("Sinal do DATA AUX:");
+	                                            Serial.println(data_aux, HEX);
+			                                    como[0].dev[0].tec[0].ler_ir[2].dado_ir = data_aux;
+			                                    //Serial.print("Sinal do Struct:");
+	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+	                                            //IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+			                                }
+			                                //Incrementa Botao para Sair do While
+			                                botao_n_ok++;
+									    }
+									    //Se dado gravado for diferente do anterior descarta gravaçao e volta Operacional
+									    else									    
+									    {
+									    	Serial.println("Botao Diferente do anterior");
+									    	for (int i = 0; i < 1; ++i) //Limpa os Dados 
+									    	{
+									    		valor_ir_tv[i] = 0;
+									    	}
+									    	Serial.println("Dado Errado Grave Novamente");
+									    	botao_n_ok = 2;
+									    }
+									}
+									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
+									else
+									{
+										Serial.println("Botao 0 Gravado incrementa botao");
+										botao_n_ok++;
+									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+									}
+								}
+								IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+							    
+					    }
+					}
+					Serial.print("Sinal do Struct:");
+	                Serial.println(como[0].dev[0].tec[0].ler_ir[2].dado_ir, HEX);
+                    state = kOperacional;
+				break;
+
+				case 3:
+				//Enquanto nao for Gravado 2 vezes o dado IR fica na funcao
+					//teste = 0;
+					while (botao_n_ok != 2)
+					{
+						if (envio == 0)
+						{
+							//Serial.println("Aperte o Botao Desejado");
+							envio++;
+						}
+                        else if (envio == 2)
+                        {
+                            Serial.println("Aperte Novamente o mesmo Botao do Controle Remoto a Ser gravado");
+                            envio++;
+                        }
+                        /*** Habilita Leitura do Receptor IR ***/
+    					IRRecv.enableIRIn();
+    					delay(500);
+						if (IRRecv.decode(&ir_results)) //Verifico se Tem Dado 
+					    {
+					        	//Verifica se Dado é Valido, Se For Grava dado na var valor_ir_tv
+					        	if (ir_results.value != value_erro) 
+					        	{
+						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
+							        Serial.println(ir_results.value, HEX);
+							        valor_ir_tv[botao_n_ok] = ir_results.value;
+							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        envio++;
+							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
+							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
+							        {
+								        //Verifica se dado gravado é igual ao Anterior 
+								        if ((valor_ir_tv[botao_n_ok]) == (valor_ir_tv[botao_n_ok - 1]))
+								        {									        
+			                                if (botao_n_ok == 1)
+			                                {
+			                                    Serial.println("Botao Igual ao anterior");
+										        data_aux = valor_ir_tv[botao_n_ok];
+										        Serial.print("Sinal do DATA AUX:");
+	                                            Serial.println(data_aux, HEX);
+			                                    como[0].dev[0].tec[0].ler_ir[3].dado_ir = data_aux;
+			                                    //Serial.print("Sinal do Struct:");
+	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+	                                            //IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+			                                }
+			                                //Incrementa Botao para Sair do While
+			                                botao_n_ok++;
+									    }
+									    //Se dado gravado for diferente do anterior descarta gravaçao e volta Operacional
+									    else									    
+									    {
+									    	Serial.println("Botao Diferente do anterior");
+									    	for (int i = 0; i < 1; ++i) //Limpa os Dados 
+									    	{
+									    		valor_ir_tv[i] = 0;
+									    	}
+									    	Serial.println("Dado Errado Grave Novamente");
+									    	botao_n_ok = 2;
+									    }
+									}
+									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
+									else
+									{
+										Serial.println("Botao 0 Gravado incrementa botao");
+										botao_n_ok++;
+									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+									}
+								}
+								IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+							    
+					    }
+					}
+					Serial.print("Sinal do Struct:");
+	                Serial.println(como[0].dev[0].tec[0].ler_ir[3].dado_ir, HEX);
+                    state = kOperacional;
+				break;
+
+				case 4:
+				//Enquanto nao for Gravado 2 vezes o dado IR fica na funcao
+					//teste = 0;
+					while (botao_n_ok != 2)
+					{
+						if (envio == 0)
+						{
+							//Serial.println("Aperte o Botao Desejado");
+							envio++;
+						}
+                        else if (envio == 2)
+                        {
+                            Serial.println("Aperte Novamente o mesmo Botao do Controle Remoto a Ser gravado");
+                            envio++;
+                        }
+                        /*** Habilita Leitura do Receptor IR ***/
+    					IRRecv.enableIRIn();
+    					delay(500);
+						if (IRRecv.decode(&ir_results)) //Verifico se Tem Dado 
+					    {
+					        	//Verifica se Dado é Valido, Se For Grava dado na var valor_ir_tv
+					        	if (ir_results.value != value_erro) 
+					        	{
+						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
+							        Serial.println(ir_results.value, HEX);
+							        valor_ir_tv[botao_n_ok] = ir_results.value;
+							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        envio++;
+							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
+							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
+							        {
+								        //Verifica se dado gravado é igual ao Anterior 
+								        if ((valor_ir_tv[botao_n_ok]) == (valor_ir_tv[botao_n_ok - 1]))
+								        {									        
+			                                if (botao_n_ok == 1)
+			                                {
+			                                    Serial.println("Botao Igual ao anterior");
+										        data_aux = valor_ir_tv[botao_n_ok];
+										        Serial.print("Sinal do DATA AUX:");
+	                                            Serial.println(data_aux, HEX);
+			                                    como[0].dev[0].tec[0].ler_ir[4].dado_ir = data_aux;
+			                                    //Serial.print("Sinal do Struct:");
+	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+	                                            //IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+			                                }
+			                                //Incrementa Botao para Sair do While
+			                                botao_n_ok++;
+									    }
+									    //Se dado gravado for diferente do anterior descarta gravaçao e volta Operacional
+									    else									    
+									    {
+									    	Serial.println("Botao Diferente do anterior");
+									    	for (int i = 0; i < 1; ++i) //Limpa os Dados 
+									    	{
+									    		valor_ir_tv[i] = 0;
+									    	}
+									    	Serial.println("Dado Errado Grave Novamente");
+									    	botao_n_ok = 2;
+									    }
+									}
+									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
+									else
+									{
+										Serial.println("Botao 0 Gravado incrementa botao");
+										botao_n_ok++;
+									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+									}
+								}
+								IRRecv.resume(); // Recebe o Proximo Valor do Buffer
+							    
+					    }
+					}
+					Serial.print("Sinal do Struct:");
+	                Serial.println(como[0].dev[0].tec[0].ler_ir[4].dado_ir, HEX);
+                    state = kOperacional;
+				break;
+				
+				
+				
 				default:
 				break;
 			}
     
 }
+
+
+
+
+
 
 
 
