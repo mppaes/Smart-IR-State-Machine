@@ -134,3 +134,6 @@ bool func_verifica_conexao(void)
     }
     return (error);
 }
+
+
+
