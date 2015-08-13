@@ -192,16 +192,3 @@ void func_client_app(void)
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
