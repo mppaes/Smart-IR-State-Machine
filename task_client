@@ -25,6 +25,96 @@
 *
 */
 
+void func_opera_verifica_string_ir()
+{
+    if(readString.indexOf("SALA-TV-LIGA") > 0)
+    {
+        Serial.println("SALA-TV-LIGA");
+        Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+    }
+    
+    if(readString.indexOf("SALA-TV-CH+") > 0)
+    {
+        Serial.println("SALA-TV-CH+");
+        Serial.println(como[0].dev[0].tec[0].ler_ir[1].dado_ir, HEX);
+    }
+
+    if(readString.indexOf("SALA-TV-CH-") > 0)
+    {
+        Serial.println("SALA-TV-CH-");
+        Serial.println(como[0].dev[0].tec[0].ler_ir[2].dado_ir, HEX);
+    }
+
+    if(readString.indexOf("SALA-TV-VOL+") > 0)
+    {
+        Serial.println("SALA-TV-VOL+");
+        Serial.println(como[0].dev[0].tec[0].ler_ir[3].dado_ir, HEX);
+    }
+
+    if(readString.indexOf("SALA-TV-VOL-") > 0)
+    {
+        Serial.println("SALA-TV-VOL-");
+        Serial.println(como[0].dev[0].tec[0].ler_ir[4].dado_ir, HEX);
+    }
+
+    if(readString.indexOf("Gravar-Tecla") > 0)
+    {
+        Serial.println("Gravar Tecla");
+        state = kLeituraDoIR;
+    }
+}
+
+
+void func_leitur_verifica_string_ir()
+{
+    int teste_1;
+    if(readString.indexOf("Voltar-Operacional") > 0)
+    {
+        Serial.println("Voltar-Operacional");
+        state = kOperacional;
+    }
+
+    if(readString.indexOf("SALA-TV-LIGA") > 0)
+    {
+        Serial.println("Aperte o Botao POWER do Controle Remoto");
+        teste_1 = 0;
+        func_hab_recep(teste_1);
+        state = kOperacional;
+    }  
+
+    if(readString.indexOf("SALA-TV-CH+") > 0)
+    {
+        Serial.println("Aperte o Botao Canal + do Controle Remoto");
+        teste_1 = 1;
+        func_hab_recep(teste_1);
+        state = kOperacional;
+    } 
+    if(readString.indexOf("SALA-TV-CH-") > 0)
+    {
+        Serial.println("Aperte o Botao Canal - do Controle Remoto");
+        teste_1 = 2;
+        func_hab_recep(teste_1);
+        state = kOperacional;
+    } 
+
+    if(readString.indexOf("SALA-TV-VOL+") > 0)
+    {
+        Serial.println("Aperte o Botao Volume + do Controle Remoto");
+        teste_1 = 3;
+        func_hab_recep(teste_1);
+        state = kOperacional;
+    }
+
+    if(readString.indexOf("SALA-TV-VOL-") > 0)
+    {
+        Serial.println("Aperte o Botao Volume - do Controle Remoto");
+        teste_1 = 4;
+        func_hab_recep(teste_1);
+        state = kOperacional;
+    } 
+}
+
+
 /**
 * @ingroup task_Conexao
 * @brief   Função de que Lista as Redes Wireless Acces Point disponiveis
@@ -45,8 +135,6 @@
  
 void func_client_app(void) 
 {
-    int teste_1;
-    long int aux;
     Adafruit_CC3000_ClientRef client = echoServer.available(); 
     client = echoServer.available(); 
     //Verifica se Tem algum Cliente Conectando no Servidor
@@ -92,90 +180,11 @@ void func_client_app(void)
                 if(state == kLeituraDoIR)
                 {
                     Serial.println("Pressione o Botao do Smartphone Desejado");    
-                    if(readString.indexOf("Voltar-Operacional") > 0)
-                    {
-                        Serial.println("Voltar-Operacional");
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    }
-                
-                    if(readString.indexOf("SALA-TV-LIGA") > 0)
-                    {
-                        Serial.println("SALA-TV-LIGA");
-                        Serial.println("Aperte Botao do Controle");
-                        teste_1 = 0;
-                        func_hab_recep(teste_1);
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    }  
-
-                    if(readString.indexOf("SALA-TV-CH+") > 0)
-                    {
-                        Serial.println("SALA-TV-CH+");
-                        Serial.println("Aperte Botao do Controle");
-                        teste_1 = 1;
-                        func_hab_recep(teste_1);
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    } 
-                    if(readString.indexOf("SALA-TV-CH+") > 0)
-                    {
-                        Serial.println("SALA-TV-CH-");
-                        Serial.println("Aperte Botao do Controle");
-                        teste_1 = 2;
-                        func_hab_recep(teste_1);
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    } 
-
-                    if(readString.indexOf("SALA-TV-VOL+") > 0)
-                    {
-                        Serial.println("SALA-TV-VOL+");
-                        Serial.println("Aperte Botao do Controle");
-                        teste_1 = 3;
-                        func_hab_recep(teste_1);
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    }
-
-                    if(readString.indexOf("SALA-TV-VOL-") > 0)
-                    {
-                        Serial.println("SALA-TV-VOL-");
-                        Serial.println("Aperte Botao do Controle");
-                        teste_1 = 4;
-                        func_hab_recep(teste_1);
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    } 
+                    func_leitur_verifica_string_ir();
                 }             
                 if(state == kOperacional)
                 {
-                    if(readString.indexOf("SALA-TV-LIGA") > 0)
-                    {
-                        Serial.println("SALA-TV-LIGA");
-                        //aux = como[0].dev[0].tec[0].ler_ir[0].dado_ir;
-                        //Serial.println(aux, HEX);
-                        Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    }
-                    
-                    if(readString.indexOf("SALA-TV-CH+") > 0)
-                    {
-                        Serial.println("SALA-TV-CH+");
-                        //aux = como[0].dev[0].tec[0].ler_ir[0].dado_ir;
-                        //Serial.println(aux, HEX);
-                        Serial.println(como[0].dev[0].tec[0].ler_ir[1].dado_ir, HEX);
-                        state = kOperacional;
-                        bexibe_primeira_vez = false;
-                    }
-                    if(readString.indexOf("Gravar-Tecla") > 0)
-                    {
-                        Serial.println("Gravar Tecla");
-                        state = kLeituraDoIR;
-                        bexibe_primeira_vez = false;
-                    }
-
+                    func_opera_verifica_string_ir();
                 }
                 readString="";    
             }
@@ -183,6 +192,11 @@ void func_client_app(void)
         }
     }
 }
+
+
+
+
+
 
 
 
