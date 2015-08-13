@@ -16,7 +16,7 @@
 #include <Adafruit_CC3000_Server.h>
 #include <IRremote.h>
 #include <SPI.h>
-
+#include <EEPROM.h>
 /********************************************************************************
 *  Constantes
 *******************************************************************************/
@@ -166,6 +166,43 @@ void func_init_vars_structs(void)
     como[0].dev[1].tec[4].botao = "VOL-";*/
 }
 
+void func_read_eemprom(void)
+{
+    int buffer_read_eeprom[4];
+    long int valor_escrito_eeprom;
+    int count = 4;
+    int address_final = 16;
+    int i;
+    // ler dado da EEPROM
+    for(i = 0; i < 4; i++)
+    {
+        buffer_read_eeprom[count] = EEPROM.read(count);
+        Serial.print("Valor da EEPROM: ");
+        Serial.println(buffer_read_eeprom[count], HEX);
+        count--;
+    }
+    valor_escrito_eeprom = buffer_read_eeprom[1];
+    
+    Serial.print("Valor Normal: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[2]);
+    
+    Serial.print("Valor Shift 8: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+ 
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[3]);
+    
+    Serial.print("Valor Shift 16: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[4]);
+    
+    Serial.print("Valor Shift 24: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+    como[0].dev[0].tec[0].ler_ir[0].dado_ir = valor_escrito_eeprom;
+    Serial.print("Valor da EEPROM");
+    Serial.println(valor_escrito_eeprom, HEX);
+    count = 4;
+}
 
 /****************************************************************************/
 /**
@@ -201,7 +238,7 @@ void setup(void)
     Serial.println("----------------------------------------");
     Serial.println("---------------HOME-IR------------------");
     Serial.println("----------------------------------------");
-
+    func_read_eemprom();
     Serial.println("Inicializando Home IR");
     func_init_vars_structs();
     Serial.println("Variaveis Inicializadas");
@@ -294,6 +331,7 @@ void loop(void)
     }
  
 }
+
 
 
 
