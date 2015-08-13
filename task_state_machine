@@ -14,16 +14,9 @@
 *********************************************************************/
 #include <Adafruit_CC3000.h>
 #include <Adafruit_CC3000_Server.h>
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library
-#include <ccspi.h>
-//#include <SD.h>
 #include <IRremote.h>
 #include <SPI.h>
-#include "utility/debug.h"
-#include "utility/socket.h"
-#include <avr/wdt.h>
-//#include <CC3000_MDNS.h> //incluir biblioteca
+
 /********************************************************************************
 *  Constantes
 *******************************************************************************/
@@ -32,23 +25,12 @@
 #define TIMEOUT_MS            500    // Amount of time in milliseconds to wait for
                                      // an incoming request to finish.  Don't set this
                                      // too high or your server could be slow to respond.
-/*******************************************************************************
-*  BAUDRATE Comunicação Serial
-******************************************************************************/
-#define BD_SR115200    115200
- 
+
 /*******************************************************************************
 *  Tamanho das Struct
 ******************************************************************************/
 #define MAX_ELEMENTO_STRU 5
-/*******************************************************************************
-*  Base de tempos pa WATCHDOG
-******************************************************************************/
- 
-/*******************************************************************************
-*  Base de tempos
-******************************************************************************/
-#define t_100ms      100           
+        
 /*****************************************************************************
 *  Definicoes IO Digital
 *****************************************************************************/
@@ -123,7 +105,6 @@ struct comodo
 typedef enum
 {
     kConectandoWireless = 0,
-    kConexaoWirelessOk,
     kOperacional,
     kLeituraDoIR
 }MaquinaEstado_t;
@@ -131,15 +112,15 @@ typedef enum
 /*****************************************************************************
 *  Variáveis GLOBAIS
 *****************************************************************************/
+boolean bexibe_primeira_vez = false;
+
 /*** Instancia AdafruitCC3000Server na var echoServer na Porta 80 ***/
 Adafruit_CC3000_Server echoServer(LISTEN_PORT);
  
 /*** Instancia AdafruitCC3000 com os Pinos de CS, IRQ e CLK ***/
 Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT,
                                          SPI_CLOCK_DIVIDER);
- 
-/*** Instancia AdafruitST7735 Display TFT ***/
-Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, SPI_MOSI, SPI_SCK, TFT_RST);
+
 /*** Instancia String na var readString***/
 String readString;
  
@@ -148,20 +129,12 @@ IRsend IR_EMISSOR_INFRA_RED;  //Variavel que envia o codigo
 IRrecv IRRecv(RECEPTOR_INFRA_RED);
 decode_results ir_results;  //Armazena os resultado decodificado do receptor IR
 
-
-//
-long int valor_ir_tv [10];
-//int valor_ir_net[];
 /*** Instancia Status do Wifi ***/
 status_t wifistatus = STATUS_DISCONNECTED;
  
 /*** Instancia maquinaestado na var state inicializando no modo BUSCA ***/
 MaquinaEstado_t state = kConectandoWireless;
  
-/*****************************************************************************
-*  Variáveis GLOBAIS  FLAGS de CONTROLE
-*****************************************************************************/
-boolean bexibe_primeira_vez = false;
 /*****************************************************************************
 *  Protótipo de Funções
 *****************************************************************************/
@@ -222,7 +195,7 @@ void setup(void)
     /*** Limpa Comunicacao Serial ***/
     Serial.flush();     
     /*** Inicia comunicao Serial com parametro BAUDRATE ***/
-    Serial.begin(BD_SR115200);
+    Serial.begin(9600);
     Serial.println();
     Serial.println();
     Serial.println("----------------------------------------");
@@ -257,6 +230,8 @@ void setup(void)
 *********************************************************************/
 void loop(void)
 {
+    //Flag de Controle
+    //boolean bexibe_primeira_vez;
     /*** Verifica Status da placa ***/
     switch(state)
     {
@@ -264,11 +239,7 @@ void loop(void)
         *** Inicia Conexão com a Rede Selecionada, ConectAP e CheckDHCP ***
         */
         case kConectandoWireless:
-            if(bexibe_primeira_vez == false)
-            {
-                Serial.println("Conectando a Rede Wireless");
-                bexibe_primeira_vez = true;
-            }
+            Serial.println("Conectando a Rede Wireless");
             func_conexao_ip_rede();   
             Serial.println("Conexão Estabelecida");
             state = kOperacional;
@@ -323,6 +294,10 @@ void loop(void)
     }
  
 }
+
+
+
+
 
 
 
