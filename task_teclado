@@ -34,6 +34,7 @@ void func_hab_recep (int teste)
     long int data_aux;
     long int valor_ir_tv[3];
     int envio = 0;
+    int adress_eeprom;
     long int value_erro = 0xFFFFFFFF;
 
 
@@ -47,7 +48,7 @@ void func_hab_recep (int teste)
 					{
 						if (envio == 0)
 						{
-							//Serial.println("Aperte o Botao Desejado");
+							Serial.println("Aperte o Botao do Controle Remoto Desejado");
 							envio++;
 						}
                         else if (envio == 2)
@@ -66,8 +67,8 @@ void func_hab_recep (int teste)
 						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
 							        Serial.println(ir_results.value, HEX);
 							        valor_ir_tv[botao_n_ok] = ir_results.value;
-							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
-							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        //Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        //Serial.println(valor_ir_tv[botao_n_ok], HEX);
 							        envio++;
 							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
 							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
@@ -79,8 +80,17 @@ void func_hab_recep (int teste)
 			                                {
 			                                    Serial.println("Botao Igual ao anterior");
 										        data_aux = valor_ir_tv[botao_n_ok];
-										        Serial.print("Sinal do DATA AUX:");
-	                                            Serial.println(data_aux, HEX);
+										        //Serial.print("Sinal do DATA AUX:");
+	                                            //Serial.println(data_aux, HEX);
+	                                            adress_eeprom = 0;
+	                                            if (EEpromWritelong(adress_eeprom, data_aux))
+	                                            {
+	                                            	Serial.println("Falha na Gravacao da EEPROM");
+	                                            }
+	                                            else
+	                                            {
+                                                        Serial.println("Gravação na EEPROM Ok");  	
+	                                            }
 			                                    como[0].dev[0].tec[0].ler_ir[0].dado_ir = data_aux;
 			                                    //Serial.print("Sinal do Struct:");
 	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
@@ -104,7 +114,7 @@ void func_hab_recep (int teste)
 									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
 									else
 									{
-										Serial.println("Botao 0 Gravado incrementa botao");
+										Serial.println("Botao Digitalizado");
 										botao_n_ok++;
 									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
 									}
@@ -113,8 +123,8 @@ void func_hab_recep (int teste)
 							    
 					    }
 					}
-					Serial.print("Sinal do Struct:");
-	                Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
+					//Serial.print("Sinal do Struct:");
+	                //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
                     state = kOperacional;
 				break;
 
@@ -125,7 +135,7 @@ void func_hab_recep (int teste)
 					{
 						if (envio == 0)
 						{
-							//Serial.println("Aperte o Botao Desejado");
+							Serial.println("Aperte o Botao Desejado");
 							envio++;
 						}
                         else if (envio == 2)
@@ -144,8 +154,8 @@ void func_hab_recep (int teste)
 						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
 							        Serial.println(ir_results.value, HEX);
 							        valor_ir_tv[botao_n_ok] = ir_results.value;
-							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
-							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        //Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        //Serial.println(valor_ir_tv[botao_n_ok], HEX);
 							        envio++;
 							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
 							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
@@ -157,8 +167,17 @@ void func_hab_recep (int teste)
 			                                {
 			                                    Serial.println("Botao Igual ao anterior");
 										        data_aux = valor_ir_tv[botao_n_ok];
-										        Serial.print("Sinal do DATA AUX:");
-	                                            Serial.println(data_aux, HEX);
+										        //Serial.print("Sinal do DATA AUX:");
+	                                            //Serial.println(data_aux, HEX);
+	                                            adress_eeprom = 4;
+	                                            if (EEpromWritelong(adress_eeprom, data_aux))
+	                                            {
+                                                        Serial.println("Falha na Gravacao da EEPROM");
+	                                            }
+	                                            else
+	                                            {
+	                                            	Serial.println("Gravação na EEPROM Ok");
+	                                            }
 			                                    como[0].dev[0].tec[0].ler_ir[1].dado_ir = data_aux;
 			                                    //Serial.print("Sinal do Struct:");
 	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
@@ -182,7 +201,7 @@ void func_hab_recep (int teste)
 									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
 									else
 									{
-										Serial.println("Botao 0 Gravado incrementa botao");
+										Serial.println("Botao Digitalizado");
 										botao_n_ok++;
 									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
 									}
@@ -191,8 +210,8 @@ void func_hab_recep (int teste)
 							    
 					    }
 					}
-					Serial.print("Sinal do Struct:");
-	                Serial.println(como[0].dev[0].tec[0].ler_ir[1].dado_ir, HEX);
+					//Serial.print("Sinal do Struct:");
+	                //Serial.println(como[0].dev[0].tec[0].ler_ir[1].dado_ir, HEX);
                     state = kOperacional;
 				break;
 				
@@ -203,7 +222,7 @@ void func_hab_recep (int teste)
 					{
 						if (envio == 0)
 						{
-							//Serial.println("Aperte o Botao Desejado");
+							Serial.println("Aperte o Botao Desejado");
 							envio++;
 						}
                         else if (envio == 2)
@@ -222,8 +241,8 @@ void func_hab_recep (int teste)
 						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
 							        Serial.println(ir_results.value, HEX);
 							        valor_ir_tv[botao_n_ok] = ir_results.value;
-							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
-							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        //Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        //Serial.println(valor_ir_tv[botao_n_ok], HEX);
 							        envio++;
 							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
 							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
@@ -235,8 +254,17 @@ void func_hab_recep (int teste)
 			                                {
 			                                    Serial.println("Botao Igual ao anterior");
 										        data_aux = valor_ir_tv[botao_n_ok];
-										        Serial.print("Sinal do DATA AUX:");
-	                                            Serial.println(data_aux, HEX);
+										        //Serial.print("Sinal do DATA AUX:");
+	                                            //Serial.println(data_aux, HEX);
+	                                            adress_eeprom =8;
+	                                            if (EEpromWritelong(adress_eeprom, data_aux))
+	                                            {
+	                                            	Serial.println("Falha na Gravacao da EEPROM");
+	                                            }
+	                                            else
+	                                            {
+                                                        Serial.println("Gravação na EEPROM Ok");	
+	                                            }
 			                                    como[0].dev[0].tec[0].ler_ir[2].dado_ir = data_aux;
 			                                    //Serial.print("Sinal do Struct:");
 	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
@@ -260,7 +288,7 @@ void func_hab_recep (int teste)
 									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
 									else
 									{
-										Serial.println("Botao 0 Gravado incrementa botao");
+										Serial.println("Botao Digitalizado");
 										botao_n_ok++;
 									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
 									}
@@ -269,8 +297,8 @@ void func_hab_recep (int teste)
 							    
 					    }
 					}
-					Serial.print("Sinal do Struct:");
-	                Serial.println(como[0].dev[0].tec[0].ler_ir[2].dado_ir, HEX);
+					//Serial.print("Sinal do Struct:");
+	                //Serial.println(como[0].dev[0].tec[0].ler_ir[2].dado_ir, HEX);
                     state = kOperacional;
 				break;
 
@@ -300,8 +328,8 @@ void func_hab_recep (int teste)
 						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
 							        Serial.println(ir_results.value, HEX);
 							        valor_ir_tv[botao_n_ok] = ir_results.value;
-							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
-							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        //Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        //Serial.println(valor_ir_tv[botao_n_ok], HEX);
 							        envio++;
 							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
 							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
@@ -313,8 +341,17 @@ void func_hab_recep (int teste)
 			                                {
 			                                    Serial.println("Botao Igual ao anterior");
 										        data_aux = valor_ir_tv[botao_n_ok];
-										        Serial.print("Sinal do DATA AUX:");
-	                                            Serial.println(data_aux, HEX);
+										        //Serial.print("Sinal do DATA AUX:");
+	                                            //Serial.println(data_aux, HEX);
+	                                            adress_eeprom = 12;
+	                                            if (EEpromWritelong(adress_eeprom, data_aux))
+	                                            {
+	                                            	Serial.println("Falha na Gravacao da EEPROM"); 
+	                                            }
+	                                            else
+	                                            {
+	                                            	Serial.println("Gravação na EEPROM Ok");
+	                                            }
 			                                    como[0].dev[0].tec[0].ler_ir[3].dado_ir = data_aux;
 			                                    //Serial.print("Sinal do Struct:");
 	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
@@ -338,7 +375,7 @@ void func_hab_recep (int teste)
 									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
 									else
 									{
-										Serial.println("Botao 0 Gravado incrementa botao");
+										Serial.println("Botao Digitalizado");
 										botao_n_ok++;
 									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
 									}
@@ -347,8 +384,8 @@ void func_hab_recep (int teste)
 							    
 					    }
 					}
-					Serial.print("Sinal do Struct:");
-	                Serial.println(como[0].dev[0].tec[0].ler_ir[3].dado_ir, HEX);
+					//Serial.print("Sinal do Struct:");
+	                //Serial.println(como[0].dev[0].tec[0].ler_ir[3].dado_ir, HEX);
                     state = kOperacional;
 				break;
 
@@ -359,7 +396,7 @@ void func_hab_recep (int teste)
 					{
 						if (envio == 0)
 						{
-							//Serial.println("Aperte o Botao Desejado");
+							Serial.println("Aperte o Botao Desejado");
 							envio++;
 						}
                         else if (envio == 2)
@@ -378,8 +415,8 @@ void func_hab_recep (int teste)
 						        	Serial.print("Sinal Infra Red Digitalizado - Hex 0x: ");
 							        Serial.println(ir_results.value, HEX);
 							        valor_ir_tv[botao_n_ok] = ir_results.value;
-							        Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
-							        Serial.println(valor_ir_tv[botao_n_ok], HEX);
+							        //Serial.print("Sinal da Var valor_ir_tv - Hex 0x: ");
+							        //Serial.println(valor_ir_tv[botao_n_ok], HEX);
 							        envio++;
 							        //Verifica se ja foi Gravado alguma tecla caso nao Apenas icrementa botao_n_ok e pega proximo dado
 							        if(botao_n_ok > 0)// Se ja tiver dado gravado entra no if 
@@ -391,8 +428,17 @@ void func_hab_recep (int teste)
 			                                {
 			                                    Serial.println("Botao Igual ao anterior");
 										        data_aux = valor_ir_tv[botao_n_ok];
-										        Serial.print("Sinal do DATA AUX:");
-	                                            Serial.println(data_aux, HEX);
+										        //Serial.print("Sinal do DATA AUX:");
+	                                            //Serial.println(data_aux, HEX);
+	                                            adress_eeprom = 16;
+	                                            if (EEpromWritelong(adress_eeprom, data_aux))
+	                                            {
+	                                            	Serial.println("Falha na Gravacao da EEPROM");	
+	                                            }
+	                                            else
+	                                            {
+	                                            	Serial.println("Gravação na EEPROM Ok");
+	                                            }
 			                                    como[0].dev[0].tec[0].ler_ir[4].dado_ir = data_aux;
 			                                    //Serial.print("Sinal do Struct:");
 	                                            //Serial.println(como[0].dev[0].tec[0].ler_ir[0].dado_ir, HEX);
@@ -416,7 +462,7 @@ void func_hab_recep (int teste)
 									//Primeiro Dado ja foi gravado incrementa botao e pega proximo dado
 									else
 									{
-										Serial.println("Botao 0 Gravado incrementa botao");
+										Serial.println("Botao Digitalizado");
 										botao_n_ok++;
 									    IRRecv.resume(); // Recebe o Proximo Valor do Buffer
 									}
@@ -425,8 +471,8 @@ void func_hab_recep (int teste)
 							    
 					    }
 					}
-					Serial.print("Sinal do Struct:");
-	                Serial.println(como[0].dev[0].tec[0].ler_ir[4].dado_ir, HEX);
+					//Serial.print("Sinal do Struct:");
+	                //Serial.println(como[0].dev[0].tec[0].ler_ir[4].dado_ir, HEX);
                     state = kOperacional;
 				break;
 				
@@ -437,31 +483,3 @@ void func_hab_recep (int teste)
 			}
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
