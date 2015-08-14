@@ -60,6 +60,7 @@ void func_opera_verifica_string_ir()
     if(readString.indexOf("Gravar-Tecla") > 0)
     {
         Serial.println("Gravar Tecla");
+        Serial.println("Pressione no Smartphone a Tecla Desejada");
         state = kLeituraDoIR;
     }
 }
