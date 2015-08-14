@@ -42,7 +42,7 @@
         Serial.println("Falha =(");
         while(500);
     }
-    Serial.println("Conexão com Acces Point OK");
+    Serial.println("Conexao com Acces Point OK");
  
     /*** Verifica DHCP ***/
     while (!cc3000.checkDHCP())
@@ -92,7 +92,7 @@ bool atribuir_ip_netmask_gateway_dhcp_dns(void)
   }
   else //Se Shield atribui IP via DHCP, imprime na serial os valores
   {
-    Serial.print("Módulo com Endereço de IP:");
+    Serial.print("Modulo com Endereço de IP:");
     cc3000.printIPdotsRev(ipAddress);
     Serial.println();
    error = true;
@@ -134,6 +134,3 @@ bool func_verifica_conexao(void)
     }
     return (error);
 }
-
-
-
