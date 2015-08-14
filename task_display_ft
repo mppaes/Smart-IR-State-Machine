@@ -1,39 +1,229 @@
-/**************************************************************************** 
-*                                                  São José dos Campos - SP * 
-*                                                                           * 
-* Mateus Pinto Paes                                                         * 
-* ============================================                              * 
-*                                                                           * 
-* Programa: HOME-IR                                                         * 
-* Projeto: HOME-IR                                                          * 
-* VersãoGit: N/A                                                             * 
-*                                                                           * 
-****************************************************************************/ 
-  
-/** 
-* @ingroup task_displaytft 
-* @brief   Função que exibe nos display tft as informações 
-* @param   Nenhum 
-* @return   
- * @return   
- *  
- * @note Verificado por: 
-* @note Validado por: 
-* 
-* @author  Tec. Mateus P Paes (mppaes@me.com) 
-* @date 06/mai/2015
-*
-*/
-/*********************************************************************
-* testdrawtext
-*********************************************************************/
-void testdrawtext(char *text, uint16_t color)
+bool EEpromWritelong (int address, long int value)
 {
-  tft.fillScreen(ST7735_BLACK);
-  tft.setCursor(0, 0);
-  tft.setTextColor(color);
-  tft.setTextWrap(true);
-  tft.println(text); 
-} 
+	int buffer_val[4];
+    int buffer_aux[4];
+	int count =3;
+	int count_aux;
+    int i;
+	bool flag_erro = true;
+	
+	if (address == 0)
+	{
+		buffer_val[0] = (value & 0xFF); //byte 4
+		buffer_val[1] = ((value >> 8) & 0xFF); //byte3
+		buffer_val[2] =  ((value >> 16) & 0xFF); //byte2
+		buffer_val[3] = ((value >> 24) & 0xFF); //byte1
+
+		//gravação
+		for (i = 0; i < 4; i++)
+		{
+			address = address + 1;
+			EEPROM.write(address, buffer_val[count]);
+			//Serial.println("Dado da Gravacao");
+		    //Serial.println(buffer_val[count], HEX);
+			count--;
+	        delay(1000);
+		}                              
+
+		//confirmar a gravação
+		count = 4;
+		for ( i = 0; i < 4 ; i++)
+		{
+			buffer_aux[count] = EEPROM.read(count);
+			//Serial.println("Leitura do DAdo Gravado na EEPROM");
+	        //Serial.println("Buffer aux: ");
+	        //Serial.println(buffer_aux[count], HEX);
+	        //Serial.println("Buffer val: ");
+	        //Serial.println(buffer_val[i], HEX);
+			if (buffer_aux[count] != buffer_val[i])  //ser for diferente, para  a leitura 
+			{
+				flag_erro = false; //erro
+				break; //para o form de confirmação
+			}
+			count--;
+	        delay(1000);
+		}                            
+		if(flag_erro == true)
+		{
+			Serial.println("Dado Gravado Corretamente");
+		}
+	}
+
+	if (address == 4)
+	{
+		buffer_val[0] = (value & 0xFF); //byte 4
+		buffer_val[1] = ((value >> 8) & 0xFF); //byte3
+		buffer_val[2] =  ((value >> 16) & 0xFF); //byte2
+		buffer_val[3] = ((value >> 24) & 0xFF); //byte1
+
+		//gravação
+		for (i = 0; i < 4; i++)
+		{
+			address = address + 1;
+			EEPROM.write(address, buffer_val[count]);
+			//Serial.println("Dado da Gravacao");
+		    //Serial.println(buffer_val[count], HEX);
+			count--;
+	        delay(1000);
+		}                              
+
+		//confirmar a gravação
+		count = 8;
+		count_aux = 4;
+		for ( i = 0; i < 4 ; i++)
+		{
+			buffer_aux[count_aux] = EEPROM.read(count);
+			//Serial.println("Leitura do DAdo Gravado na EEPROM");
+	        //Serial.println("Buffer aux: ");
+	        //Serial.println(buffer_aux[count_aux], HEX);
+	        //Serial.println("Buffer val: ");
+	        //Serial.println(buffer_val[i], HEX);
+			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
+			{
+				flag_erro = false; //erro
+				break; //para o form de confirmação
+			}
+			count--;
+			count_aux--;
+	        delay(1000);
+		}                            
+		if(flag_erro == true)
+		{
+			Serial.println("Dado Gravado Corretamente");
+		}
+	}
+
+        if (address == 8)
+	{
+		buffer_val[0] = (value & 0xFF); //byte 4
+		buffer_val[1] = ((value >> 8) & 0xFF); //byte3
+		buffer_val[2] =  ((value >> 16) & 0xFF); //byte2
+		buffer_val[3] = ((value >> 24) & 0xFF); //byte1
+
+		//gravação
+		for (i = 0; i < 4; i++)
+		{
+			address = address + 1;
+			EEPROM.write(address, buffer_val[count]);
+			//Serial.println("Dado da Gravacao");
+		    //Serial.println(buffer_val[count], HEX);
+			count--;
+	        delay(1000);
+		}                              
+
+		//confirmar a gravação
+		count = 12;
+		count_aux = 4;
+		for ( i = 0; i < 4 ; i++)
+		{
+			buffer_aux[count_aux] = EEPROM.read(count);
+			//Serial.println("Leitura do DAdo Gravado na EEPROM");
+	        //Serial.println("Buffer aux: ");
+	        //Serial.println(buffer_aux[count_aux], HEX);
+	        //Serial.println("Buffer val: ");
+	        //Serial.println(buffer_val[i], HEX);
+			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
+			{
+				flag_erro = false; //erro
+				break; //para o form de confirmação
+			}
+			count--;
+			count_aux--;
+	        delay(1000);
+		}                            
+		if(flag_erro == true)
+		{
+			Serial.println("Dado Gravado Corretamente");
+		}
+	}
+
+        if (address == 12)
+	{
+		buffer_val[0] = (value & 0xFF); //byte 4
+		buffer_val[1] = ((value >> 8) & 0xFF); //byte3
+		buffer_val[2] =  ((value >> 16) & 0xFF); //byte2
+		buffer_val[3] = ((value >> 24) & 0xFF); //byte1
+
+		//gravação
+		for (i = 0; i < 4; i++)
+		{
+			address = address + 1;
+			EEPROM.write(address, buffer_val[count]);
+			//Serial.println("Dado da Gravacao");
+		    //Serial.println(buffer_val[count], HEX);
+			count--;
+	        delay(1000);
+		}                              
+
+		//confirmar a gravação
+		count = 16;
+		count_aux = 4;
+		for ( i = 0; i < 4 ; i++)
+		{
+			buffer_aux[count_aux] = EEPROM.read(count);
+			//Serial.println("Leitura do DAdo Gravado na EEPROM");
+	        //Serial.println("Buffer aux: ");
+	        //Serial.println(buffer_aux[count_aux], HEX);
+	        //Serial.println("Buffer val: ");
+	        //Serial.println(buffer_val[i], HEX);
+			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
+			{
+				flag_erro = false; //erro
+				break; //para o form de confirmação
+			}
+			count--;
+			count_aux--;
+	        delay(1000);
+		}                            
+		if(flag_erro == true)
+		{
+			Serial.println("Dado Gravado Corretamente");
+		}
+	}
   
+        if (address == 16)
+	{
+		buffer_val[0] = (value & 0xFF); //byte 4
+		buffer_val[1] = ((value >> 8) & 0xFF); //byte3
+		buffer_val[2] =  ((value >> 16) & 0xFF); //byte2
+		buffer_val[3] = ((value >> 24) & 0xFF); //byte1
+
+		//gravação
+		for (i = 0; i < 4; i++)
+		{
+			address = address + 1;
+			EEPROM.write(address, buffer_val[count]);
+			//Serial.println("Dado da Gravacao");
+		    //Serial.println(buffer_val[count], HEX);
+			count--;
+	        delay(1000);
+		}                              
+
+		//confirmar a gravação
+		count = 20;
+		count_aux = 4;
+		for ( i = 0; i < 4 ; i++)
+		{
+			buffer_aux[count_aux] = EEPROM.read(count);
+			//Serial.println("Leitura do DAdo Gravado na EEPROM");
+	        //Serial.println("Buffer aux: ");
+	        //Serial.println(buffer_aux[count_aux], HEX);
+	        //Serial.println("Buffer val: ");
+	        //Serial.println(buffer_val[i], HEX);
+			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
+			{
+				flag_erro = false; //erro
+				break; //para o form de confirmação
+			}
+			count--;
+			count_aux--;
+	        delay(1000);
+		}                            
+		if(flag_erro == true)
+		{
+			Serial.println("Dado Gravado Corretamente");
+		}
+	}
+	return flag_erro;
+}
 
