@@ -168,40 +168,64 @@ void func_init_vars_structs(void)
 
 void func_read_eemprom(void)
 {
-    int buffer_read_eeprom[4];
+    int buffer_read_eeprom[32];
     long int valor_escrito_eeprom;
-    int count = 4;
-    int address_final = 16;
+    int count = 32;
+    int count_aux;
     int i;
     // ler dado da EEPROM
-    for(i = 0; i < 4; i++)
+    for(i = 0; i < 32; i++)
     {
         buffer_read_eeprom[count] = EEPROM.read(count);
         Serial.print("Valor da EEPROM: ");
         Serial.println(buffer_read_eeprom[count], HEX);
         count--;
+        delay(200);
     }
     valor_escrito_eeprom = buffer_read_eeprom[1];
-    
-    Serial.print("Valor Normal: ");
-    Serial.println(valor_escrito_eeprom, HEX);
     valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[2]);
-    
-    Serial.print("Valor Shift 8: ");
-    Serial.println(valor_escrito_eeprom, HEX);
- 
     valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[3]);
-    
-    Serial.print("Valor Shift 16: ");
-    Serial.println(valor_escrito_eeprom, HEX);
     valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[4]);
-    
-    Serial.print("Valor Shift 24: ");
-    Serial.println(valor_escrito_eeprom, HEX);
     como[0].dev[0].tec[0].ler_ir[0].dado_ir = valor_escrito_eeprom;
-    Serial.print("Valor da EEPROM");
+    Serial.print("Valor da Final EEPROM-1: ");
     Serial.println(valor_escrito_eeprom, HEX);
-    count = 4;
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[5];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[6]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[7]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[8]);
+    como[0].dev[0].tec[0].ler_ir[1].dado_ir = valor_escrito_eeprom;
+    Serial.print("Valor da Final EEPROM-2: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[9];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[10]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[11]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[12]);
+    como[0].dev[0].tec[0].ler_ir[2].dado_ir = valor_escrito_eeprom;
+    Serial.print("Valor da Final EEPROM-3: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[13];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[14]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[15]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[16]);
+    como[0].dev[0].tec[0].ler_ir[3].dado_ir = valor_escrito_eeprom;
+    Serial.print("Valor da Final EEPROM-4: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[17];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[18]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[19]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[20]);
+    como[0].dev[0].tec[0].ler_ir[4].dado_ir = valor_escrito_eeprom;
+    Serial.print("Valor da Final EEPROM-5: ");
+    Serial.println(valor_escrito_eeprom, HEX);
+    delay(500);
 }
 
 /****************************************************************************/
@@ -235,9 +259,9 @@ void setup(void)
     Serial.begin(9600);
     Serial.println();
     Serial.println();
-    Serial.println("----------------------------------------");
-    Serial.println("---------------HOME-IR------------------");
-    Serial.println("----------------------------------------");
+    Serial.println("------------------------------------------");
+    Serial.println("---------------HOME-IR--------------------");
+    Serial.println("------------------------------------------");
     func_read_eemprom();
     Serial.println("Inicializando Home IR");
     func_init_vars_structs();
@@ -278,7 +302,7 @@ void loop(void)
         case kConectandoWireless:
             Serial.println("Conectando a Rede Wireless");
             func_conexao_ip_rede();   
-            Serial.println("Conexão Estabelecida");
+            Serial.println("Conexao Estabelecida");
             state = kOperacional;
             bexibe_primeira_vez = false;
         break;
@@ -310,7 +334,7 @@ void loop(void)
         case kLeituraDoIR:
             if(bexibe_primeira_vez == false)
             {
-                Serial.println("Estado Gravaçao");
+                Serial.println("Estado Gravacao do Controle Infra Vermelho");
                 bexibe_primeira_vez = true;
             }
             /*** Verifica Se CC3000 Esta conectado a Rede Wireless, se Não ***/
@@ -331,13 +355,3 @@ void loop(void)
     }
  
 }
-
-
-
-
-
-
-
-
-
-
