@@ -1,3 +1,54 @@
+void func_read_eemprom(void)
+{
+    int buffer_read_eeprom[32];
+    long int valor_escrito_eeprom;
+    int count = 32;
+    int count_aux;
+    int i;
+    // ler dado da EEPROM
+    for(i = 0; i < 32; i++)
+    {
+        buffer_read_eeprom[count] = EEPROM.read(count);
+        count--;
+        delay(200);
+    }
+    valor_escrito_eeprom = buffer_read_eeprom[1];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[2]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[3]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[4]);
+    como[0].dev[0].tec[0].ler_ir[0].dado_ir = valor_escrito_eeprom;
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[5];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[6]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[7]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[8]);
+    como[0].dev[0].tec[0].ler_ir[1].dado_ir = valor_escrito_eeprom;
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[9];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[10]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[11]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[12]);
+    como[0].dev[0].tec[0].ler_ir[2].dado_ir = valor_escrito_eeprom;
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[13];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[14]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[15]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[16]);
+    como[0].dev[0].tec[0].ler_ir[3].dado_ir = valor_escrito_eeprom;
+    delay(500);
+    
+    valor_escrito_eeprom = buffer_read_eeprom[17];
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[18]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[19]);
+    valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[20]);
+    como[0].dev[0].tec[0].ler_ir[4].dado_ir = valor_escrito_eeprom;
+    delay(500);
+}
+
+
 bool EEpromWritelong (int address, long int value)
 {
 	int buffer_val[4];
@@ -19,10 +70,8 @@ bool EEpromWritelong (int address, long int value)
 		{
 			address = address + 1;
 			EEPROM.write(address, buffer_val[count]);
-			//Serial.println("Dado da Gravacao");
-		    //Serial.println(buffer_val[count], HEX);
 			count--;
-	        delay(1000);
+	        delay(500);
 		}                              
 
 		//confirmar a gravação
@@ -30,22 +79,19 @@ bool EEpromWritelong (int address, long int value)
 		for ( i = 0; i < 4 ; i++)
 		{
 			buffer_aux[count] = EEPROM.read(count);
-			//Serial.println("Leitura do DAdo Gravado na EEPROM");
-	        //Serial.println("Buffer aux: ");
-	        //Serial.println(buffer_aux[count], HEX);
-	        //Serial.println("Buffer val: ");
-	        //Serial.println(buffer_val[i], HEX);
 			if (buffer_aux[count] != buffer_val[i])  //ser for diferente, para  a leitura 
 			{
 				flag_erro = false; //erro
 				break; //para o form de confirmação
 			}
 			count--;
-	        delay(1000);
+	        delay(250);
 		}                            
 		if(flag_erro == true)
 		{
-			Serial.println("Dado Gravado Corretamente");
+			lcd.setCursor(0,4);
+		    //         1234567890123456   
+			lcd.print("Dado Gravado");
 		}
 	}
 
@@ -61,10 +107,8 @@ bool EEpromWritelong (int address, long int value)
 		{
 			address = address + 1;
 			EEPROM.write(address, buffer_val[count]);
-			//Serial.println("Dado da Gravacao");
-		    //Serial.println(buffer_val[count], HEX);
 			count--;
-	        delay(1000);
+	        delay(500);
 		}                              
 
 		//confirmar a gravação
@@ -73,11 +117,6 @@ bool EEpromWritelong (int address, long int value)
 		for ( i = 0; i < 4 ; i++)
 		{
 			buffer_aux[count_aux] = EEPROM.read(count);
-			//Serial.println("Leitura do DAdo Gravado na EEPROM");
-	        //Serial.println("Buffer aux: ");
-	        //Serial.println(buffer_aux[count_aux], HEX);
-	        //Serial.println("Buffer val: ");
-	        //Serial.println(buffer_val[i], HEX);
 			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
 			{
 				flag_erro = false; //erro
@@ -85,11 +124,13 @@ bool EEpromWritelong (int address, long int value)
 			}
 			count--;
 			count_aux--;
-	        delay(1000);
+	        delay(250);
 		}                            
 		if(flag_erro == true)
 		{
-			Serial.println("Dado Gravado Corretamente");
+			lcd.setCursor(0,4);
+		    //         1234567890123456   
+			lcd.print("Dado Gravado");
 		}
 	}
 
@@ -105,10 +146,8 @@ bool EEpromWritelong (int address, long int value)
 		{
 			address = address + 1;
 			EEPROM.write(address, buffer_val[count]);
-			//Serial.println("Dado da Gravacao");
-		    //Serial.println(buffer_val[count], HEX);
 			count--;
-	        delay(1000);
+	        delay(500);
 		}                              
 
 		//confirmar a gravação
@@ -117,11 +156,6 @@ bool EEpromWritelong (int address, long int value)
 		for ( i = 0; i < 4 ; i++)
 		{
 			buffer_aux[count_aux] = EEPROM.read(count);
-			//Serial.println("Leitura do DAdo Gravado na EEPROM");
-	        //Serial.println("Buffer aux: ");
-	        //Serial.println(buffer_aux[count_aux], HEX);
-	        //Serial.println("Buffer val: ");
-	        //Serial.println(buffer_val[i], HEX);
 			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
 			{
 				flag_erro = false; //erro
@@ -129,11 +163,13 @@ bool EEpromWritelong (int address, long int value)
 			}
 			count--;
 			count_aux--;
-	        delay(1000);
+	        delay(250);
 		}                            
 		if(flag_erro == true)
 		{
-			Serial.println("Dado Gravado Corretamente");
+			lcd.setCursor(0,4);
+		    //         1234567890123456   
+			lcd.print("Dado Gravado");
 		}
 	}
 
@@ -149,10 +185,8 @@ bool EEpromWritelong (int address, long int value)
 		{
 			address = address + 1;
 			EEPROM.write(address, buffer_val[count]);
-			//Serial.println("Dado da Gravacao");
-		    //Serial.println(buffer_val[count], HEX);
 			count--;
-	        delay(1000);
+	        delay(500);
 		}                              
 
 		//confirmar a gravação
@@ -161,11 +195,6 @@ bool EEpromWritelong (int address, long int value)
 		for ( i = 0; i < 4 ; i++)
 		{
 			buffer_aux[count_aux] = EEPROM.read(count);
-			//Serial.println("Leitura do DAdo Gravado na EEPROM");
-	        //Serial.println("Buffer aux: ");
-	        //Serial.println(buffer_aux[count_aux], HEX);
-	        //Serial.println("Buffer val: ");
-	        //Serial.println(buffer_val[i], HEX);
 			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
 			{
 				flag_erro = false; //erro
@@ -173,11 +202,13 @@ bool EEpromWritelong (int address, long int value)
 			}
 			count--;
 			count_aux--;
-	        delay(1000);
+	        delay(250);
 		}                            
 		if(flag_erro == true)
 		{
-			Serial.println("Dado Gravado Corretamente");
+			lcd.setCursor(0,4);
+		    //         1234567890123456   
+			lcd.print("Dado Gravado");
 		}
 	}
   
@@ -193,10 +224,8 @@ bool EEpromWritelong (int address, long int value)
 		{
 			address = address + 1;
 			EEPROM.write(address, buffer_val[count]);
-			//Serial.println("Dado da Gravacao");
-		    //Serial.println(buffer_val[count], HEX);
 			count--;
-	        delay(1000);
+	        delay(500);
 		}                              
 
 		//confirmar a gravação
@@ -205,11 +234,6 @@ bool EEpromWritelong (int address, long int value)
 		for ( i = 0; i < 4 ; i++)
 		{
 			buffer_aux[count_aux] = EEPROM.read(count);
-			//Serial.println("Leitura do DAdo Gravado na EEPROM");
-	        //Serial.println("Buffer aux: ");
-	        //Serial.println(buffer_aux[count_aux], HEX);
-	        //Serial.println("Buffer val: ");
-	        //Serial.println(buffer_val[i], HEX);
 			if (buffer_aux[count_aux] != buffer_val[i])  //ser for diferente, para  a leitura 
 			{
 				flag_erro = false; //erro
@@ -217,11 +241,13 @@ bool EEpromWritelong (int address, long int value)
 			}
 			count--;
 			count_aux--;
-	        delay(1000);
+	        delay(250);
 		}                            
 		if(flag_erro == true)
 		{
-			Serial.println("Dado Gravado Corretamente");
+			lcd.setCursor(0,4);
+		    //         1234567890123456   
+			lcd.print("Dado Gravado");
 		}
 	}
 	return flag_erro;
