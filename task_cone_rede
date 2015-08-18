@@ -29,38 +29,39 @@
 *********************************************************************/
  void func_conexao_ip_rede(void)
  {
+    /*** Verifica Inicializaçao do Shield Wifi  ***/
     if (!cc3000.begin())
     {
-        Serial.println("Modulo nao inicializou");
+        lcd.setCursor(0,4);
+//                 1234567890123456   
+        lcd.print("--Modulo Falha--");  
         while(500);
     }
-    Serial.println("Modulo de Interface Wireless Inicializado");
     delay(100);
+
     /*** Verifica  conexao CC3000 com rede SSID PASS e SECURITY  ***/
     if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY))
     {
-        Serial.println("Falha =(");
+        lcd.setCursor(0,4);
+//                 1234567890123456   
+        lcd.print("Sem Conexao Wifi");
         while(500);
     }
-    Serial.println("Conexao com Acces Point OK");
  
     /*** Verifica DHCP ***/
     while (!cc3000.checkDHCP())
     {    
         delay(500);
     } 
-    Serial.println("DHCP OK");
-   
+
     /*** Verifica se placa pega IP mascara gateway ***/
     while (!atribuir_ip_netmask_gateway_dhcp_dns())
     {
         delay(500);
     }
-    Serial.println("IP Configurado");
    
     /*** Inicia Servidor ***/
     echoServer.begin();
-    Serial.println("Servidor Inicializado");
 }
 /**
 * @ingroup task_Conexao
@@ -87,14 +88,19 @@ bool atribuir_ip_netmask_gateway_dhcp_dns(void)
   //nao atribui IP a placa e retorna false
   if(!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv))
   {
-    Serial.println("Desabilitado o endereco de IP!");
+    lcd.setCursor(0,4);
+//                 1234567890123456   
+    lcd.print("IP Nao Atribuido");
     error = false;
   }
   else //Se Shield atribui IP via DHCP, imprime na serial os valores
   {
-    Serial.print("Modulo com Endereço de IP:");
-    cc3000.printIPdotsRev(ipAddress);
-    Serial.println();
+    //Serial.print("Modulo com Endereço de IP:");
+    //cc3000.printIPdotsRev(ipAddress);
+    lcd.setCursor(5,1);
+//             1234567890123456   
+    lcd.print(ipAddress);
+    //Serial.println();
    error = true;
   }
   return (error);
@@ -130,7 +136,9 @@ bool func_verifica_conexao(void)
     if(wifistatus == STATUS_DISCONNECTED)
     {           
         error = false;
-        Serial.println("Desconectou da Rede");
+        lcd.setCursor(0,4);
+//                 1234567890123456   
+        lcd.print("Sem Conexao Rede");
     }
     return (error);
 }
