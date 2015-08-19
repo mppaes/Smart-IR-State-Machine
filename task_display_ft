@@ -5,7 +5,6 @@ void func_read_eemprom(void)
     int count = 32;
     int count_aux;
     int i;
-    // ler dado da EEPROM
     for(i = 0; i < 32; i++)
     {
         buffer_read_eeprom[count] = EEPROM.read(count);
@@ -46,6 +45,13 @@ void func_read_eemprom(void)
     valor_escrito_eeprom = ((valor_escrito_eeprom << 8) | buffer_read_eeprom[20]);
     como[0].dev[0].tec[0].ler_ir[4].dado_ir = valor_escrito_eeprom;
     delay(500);
+    
+    //tft.initR(INITR_BLACKTAB);
+    //tft.setRotation(1);
+    //tft.fillScreen(ST7735_BLACK);
+    tft.setCursor(0, 64);
+    //           0123456789012
+    tft.println("EEPROM OK    ");
 }
 
 
@@ -89,8 +95,8 @@ bool EEpromWritelong (int address, long int value)
 		}                            
 		if(flag_erro == true)
 		{
-			lcd.setCursor(0,4);
-		    //         1234567890123456   
+			lcd.setCursor(0, 4);
+		    //             1234567890123456   
 			lcd.print("Dado Gravado");
 		}
 	}
@@ -128,8 +134,8 @@ bool EEpromWritelong (int address, long int value)
 		}                            
 		if(flag_erro == true)
 		{
-			lcd.setCursor(0,4);
-		    //         1234567890123456   
+			lcd.setCursor(0, 4);
+		    //             1234567890123456   
 			lcd.print("Dado Gravado");
 		}
 	}
@@ -167,8 +173,8 @@ bool EEpromWritelong (int address, long int value)
 		}                            
 		if(flag_erro == true)
 		{
-			lcd.setCursor(0,4);
-		    //         1234567890123456   
+			lcd.setCursor(0, 4);
+		    //             1234567890123456   
 			lcd.print("Dado Gravado");
 		}
 	}
@@ -206,8 +212,8 @@ bool EEpromWritelong (int address, long int value)
 		}                            
 		if(flag_erro == true)
 		{
-			lcd.setCursor(0,4);
-		    //         1234567890123456   
+			lcd.setCursor(0, 4);
+		    //             1234567890123456   
 			lcd.print("Dado Gravado");
 		}
 	}
@@ -245,11 +251,10 @@ bool EEpromWritelong (int address, long int value)
 		}                            
 		if(flag_erro == true)
 		{
-			lcd.setCursor(0,4);
-		    //         1234567890123456   
+			lcd.setCursor(0, 4);
+		    //             1234567890123456   
 			lcd.print("Dado Gravado");
 		}
 	}
 	return flag_erro;
 }
-
