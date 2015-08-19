@@ -32,9 +32,6 @@
     /*** Verifica Inicializaçao do Shield Wifi  ***/
     if (!cc3000.begin())
     {
-        lcd.setCursor(0,4);
-//                 1234567890123456   
-        lcd.print("--Modulo Falha--");  
         while(500);
     }
     delay(100);
@@ -42,9 +39,6 @@
     /*** Verifica  conexao CC3000 com rede SSID PASS e SECURITY  ***/
     if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY))
     {
-        lcd.setCursor(0,4);
-//                 1234567890123456   
-        lcd.print("Sem Conexao Wifi");
         while(500);
     }
  
@@ -88,18 +82,12 @@ bool atribuir_ip_netmask_gateway_dhcp_dns(void)
   //nao atribui IP a placa e retorna false
   if(!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv))
   {
-    lcd.setCursor(0,4);
-//                 1234567890123456   
-    lcd.print("IP Nao Atribuido");
     error = false;
   }
   else //Se Shield atribui IP via DHCP, imprime na serial os valores
   {
     //Serial.print("Modulo com Endereço de IP:");
     //cc3000.printIPdotsRev(ipAddress);
-    lcd.setCursor(5,1);
-//             1234567890123456   
-    lcd.print(ipAddress);
     //Serial.println();
    error = true;
   }
@@ -135,10 +123,27 @@ bool func_verifica_conexao(void)
     /*** Se Desconectou Volta para State COnectando ***/
     if(wifistatus == STATUS_DISCONNECTED)
     {           
-        error = false;
-        lcd.setCursor(0,4);
-//                 1234567890123456   
-        lcd.print("Sem Conexao Rede");
+         tft.initR(INITR_BLACKTAB);
+        tft.fillScreen(ST7735_BLACK);
+        tft.setRotation(1);
+        tft.setCursor(0, 0);
+        tft.setTextColor(ST7735_RED);
+        tft.setTextSize(2);
+        //         0123456789012
+        tft.print("---HOME IR---");
+        tft.setTextColor(ST7735_GREEN);
+        tft.initR(INITR_BLACKTAB);
+        tft.setCursor(0, 64);
+
+        //         0123456789012
+        tft.print("WIFI");
+        
+        tft.setCursor(0, 80);
+        //         0123456789012
+        tft.print("DESCONECTADO");
     }
     return (error);
 }
+
+
+
