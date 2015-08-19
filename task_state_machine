@@ -13,6 +13,8 @@
 * Includes de Arquivos
 *********************************************************************/
 #include <LiquidCrystal.h>
+#include <Adafruit_GFX.h>    // Core graphics library
+#include <Adafruit_ST7735.h>
 #include <Adafruit_CC3000.h>
 #include <Adafruit_CC3000_Server.h>
 #include <IRremote.h>
@@ -41,16 +43,16 @@
 #define RECEPTOR_INFRA_RED      4
 #define EMISSOR_INFRA_RED       5
 #define ADAFRUIT_CC3000_VBAT    7
-//#define TFT_RST                 8
-//#define TFT_DC                  9     //Pino Utilizando  DATA/Command Select - Display Touch T
+#define TFT_RST                 6
+#define TFT_DC                 8     //Pino Utilizando  DATA/Command Select - Display Touch T
 #define ADAFRUIT_CC3000_CS      10    //Chip Select AdaFruit CC3000 WIFI
-//#define TFT_CS                  11    //Chip Select AdaFruit LCD TFT 1.8"
-//#define LCD_SD_CS               12    //Chip Select AdaFruit LCD Cartão SD
+#define TFT_CS                  11    //Chip Select AdaFruit LCD TFT 1.8"
+#define LCD_SD_CS               12    //Chip Select AdaFruit LCD Cartão SD
 #define LED_ARDUINO             13    //Pino do Led Arduino
 #define SPI_MISO                50
 #define SPI_MOSI                51
-//#define SPI_SCK                 52
-#define SPI_SCK                 53
+#define SPI_SCK                 52
+//#define SPI_SCK                 53
 /*** SPI PINAGEM  ***/
 // SPI MEGA,SCK = 52, MISO = 50 e MOSI 51
 // SPI UNO, SCK = 13, MISO = 12 e MOSI = 11
@@ -118,6 +120,9 @@ MaquinaEstado_t state = kConectandoWireless;
 *****************************************************************************/
 boolean bexibe_primeira_vez = false;
 
+/*** ***/
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
+
 /*** Instancia AdafruitCC3000Server na var echoServer na Porta 80 ***/
 Adafruit_CC3000_Server echoServer(LISTEN_PORT);
  
@@ -128,6 +133,7 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 /*** Instancia String na var readString***/
 String readString;
  
+LiquidCrystal lcd(22, 23, 24, 25, 26, 27);
 /*** Instancia Infraveremlho ***/
 IRsend IR_EMISSOR_INFRA_RED;  //Variavel que envia o codigo
 IRrecv IRRecv(RECEPTOR_INFRA_RED);
@@ -136,14 +142,7 @@ decode_results ir_results;  //Armazena os resultado decodificado do receptor IR
 /*** Instancia Status do Wifi ***/
 status_t wifistatus = STATUS_DISCONNECTED;
 
-// Instancia LCD Dysplay 16 / 4
-//        1234567890123456  
-//Linha 0 ----HOME--IR---- //
-//Linha 1 -  OPERACIONAL - //Estado da Maquina de Estado
-//Linha 2 IP: 172.20.10.2 //IP da Placa
-//Linha 3 ---------------- //Instruçoes para Usuario
-//Linha 4 ---------------- //Instruçoes para Usuario
-LiquidCrystal lcd(22, 23, 24, 25, 26, 27);
+
 
 /****************************************************************************/
 /****************************************************************************/
@@ -197,21 +196,20 @@ void func_init_vars_structs(void)
 *********************************************************************/
 void setup(void)
 {
-    /*** Limpa Comunicacao Serial ***/
-    Serial.flush();     
-    /*** Inicia comunicao Serial com parametro BAUDRATE ***/
-    Serial.begin(9600);
-    lcd.begin(20, 4);
-    /*** Imprime mensagem na primeira linha do display ***/
-    lcd.setCursor(0,0);
-    /**        1234567890123456     ***/
-    lcd.print("----HOME--IR----");
-    lcd.setCursor(0,1);
-    /**        1234567890123456     ***/
-    lcd.print("-...LIGANDO....-:");
-    lcd.setCursor(0,2);
-    /**        1234567890123456     ***/
-    lcd.print("IP: ");
+    tft.initR(INITR_BLACKTAB);
+    tft.setRotation(1);
+    tft.fillScreen(ST7735_BLACK);
+    tft.setCursor(0, 0);
+    tft.setTextColor(ST7735_RED);
+    tft.setTextSize(2);
+    //           0123456789012
+    tft.print("---HOME IR---");
+    tft.setCursor(0, 16);
+    tft.setTextColor(ST7735_GREEN);
+
+    //         0123456789012
+    tft.print("---LIGANDO---");
+
     /*** Chama Funcao Para Ler Valores da EEPROM e carregar nas Struc  ***/
     func_read_eemprom();
     func_init_vars_structs();
@@ -249,14 +247,19 @@ void loop(void)
         *** Inicia Conexão com a Rede Selecionada, ConectAP e CheckDHCP ***
         */
         case kConectandoWireless:
-            //Serial.println("HOME-IR Conectando");
-            lcd.setCursor(0,1);
-//                     1234567890123456   
-            lcd.print("CONECTANDO WIFI");
-            func_conexao_ip_rede(); 
-            lcd.setCursor(0,3);
-//                     1234567890123456   
-            lcd.print("--Conexao OK---");  
+            func_conexao_ip_rede();
+            tft.initR(INITR_BLACKTAB); 
+            tft.setRotation(1); 
+            tft.fillScreen(ST7735_BLACK);
+            tft.setCursor(0, 0);
+            tft.setTextColor(ST7735_RED);
+            tft.setTextSize(2);
+            //         0123456789012
+            tft.print("---HOME IR---");
+            tft.setTextColor(ST7735_GREEN);
+            tft.setCursor(0, 32);
+            //         0123456789012
+            tft.print("IP172.20.10.2");
             //Serial.println("Conexao Estabelecida");
             state = kOperacional;
             bexibe_primeira_vez = false;
@@ -267,10 +270,22 @@ void loop(void)
         case kOperacional:
             if(bexibe_primeira_vez == false)
             {
-                //Serial.println("HOME-IR Operacional");
-                lcd.setCursor(0,1);
-//                         1234567890123456   
-                lcd.print("--OPERACIONAL---");
+                tft.initR(INITR_BLACKTAB);
+                tft.fillScreen(ST7735_BLACK);
+                tft.setRotation(1);
+                tft.setCursor(0, 0);
+                tft.setTextColor(ST7735_RED);
+                tft.setTextSize(2);
+                //         0123456789012
+                tft.print("---HOME IR---");
+                tft.setTextColor(ST7735_GREEN);
+                tft.setCursor(0, 16);
+                //         0123456789012
+                tft.print("-OPERACIONAL-");
+
+                tft.setCursor(0, 32);
+                //         0123456789012
+                tft.print("IP172.20.10.2");
                 bexibe_primeira_vez = true;      
             }
           
@@ -292,9 +307,10 @@ void loop(void)
         case kLeituraDoIR:
             if(bexibe_primeira_vez == false)
             {
-                lcd.setCursor(0,1);
+                lcd.setCursor(0, 2);
                 /***       1234567890123456   ***/
                 lcd.print("-GRAVACAO TECLA-");
+                delay(200);
                 bexibe_primeira_vez = true;
             }
             /*** Verifica Se CC3000 Esta conectado a Rede Wireless, se Não ***/
@@ -315,4 +331,12 @@ void loop(void)
     }
  
 }
+
+
+
+
+
+
+
+
 
